@@ -1,0 +1,23 @@
+{
+  "name": "create-mcp-pm",
+  "version": "1.0.0",
+  "description": "One-command bootstrap for MCP Project Manager - clone, build, and setup",
+  "type": "module",
+  "bin": {
+    "create-mcp-pm": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": ["dist/"],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --clean",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["mcp", "claude", "project-manager", "create"],
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}
