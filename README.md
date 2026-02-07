@@ -1,3 +1,5 @@
+**English** | [한국어](README.ko.md)
+
 # MCP Project Manager
 
 A comprehensive project management and workflow tracking system integrated with Claude Code. Powered by Model Context Protocol (MCP), it automatically captures Claude Code sessions, tool usage, agent invocations, and project tasks into a centralized dashboard and database.
