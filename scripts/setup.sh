@@ -296,14 +296,14 @@ CURRENT_SETTINGS=$(cat "$SETTINGS_FILE")
 
 HOOKS_JSON=$(node -e "
 const hooks = {
-  SessionStart: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$SESSION_START_CMD") }],
-  SessionEnd: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$SESSION_END_CMD") }],
-  PreToolUse: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$PRE_TOOL_CMD") }],
-  PostToolUse: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$POST_TOOL_CMD") }],
-  UserPromptSubmit: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$USER_PROMPT_CMD") }],
-  SubagentStart: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$SUBAGENT_START_CMD") }],
-  SubagentStop: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$SUBAGENT_STOP_CMD") }],
-  Stop: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$STOP_CMD") }]
+  SessionStart: [{ hooks: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$SESSION_START_CMD") }] }],
+  SessionEnd: [{ hooks: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$SESSION_END_CMD") }] }],
+  PreToolUse: [{ hooks: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$PRE_TOOL_CMD") }] }],
+  PostToolUse: [{ hooks: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$POST_TOOL_CMD") }] }],
+  UserPromptSubmit: [{ hooks: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$USER_PROMPT_CMD") }] }],
+  SubagentStart: [{ hooks: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$SUBAGENT_START_CMD") }] }],
+  SubagentStop: [{ hooks: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$SUBAGENT_STOP_CMD") }] }],
+  Stop: [{ hooks: [{ type: 'command', command: $(node -e "console.log(JSON.stringify(process.argv[1]))" "$STOP_CMD") }] }]
 };
 console.log(JSON.stringify(hooks));
 ")
@@ -315,8 +315,14 @@ const hooks = JSON.parse(process.argv[2]);
 const existing = settings.hooks || {};
 for (const [event, newHooks] of Object.entries(hooks)) {
   const current = existing[event] || [];
-  // Remove old mcp-pm hooks (containing our backend URL)
-  const filtered = current.filter(h => !(h.command && h.command.includes('$BACKEND_PORT/api/events')));
+  // Remove old mcp-pm hooks (both old and new format)
+  const filtered = current.filter(h => {
+    // Old format: { command: '...' }
+    if (h.command && h.command.includes('$BACKEND_PORT/api/')) return false;
+    // New format: { hooks: [{ command: '...' }] }
+    if (h.hooks?.some(inner => inner.command?.includes('$BACKEND_PORT/api/'))) return false;
+    return true;
+  });
   existing[event] = [...filtered, ...newHooks];
 }
 settings.hooks = existing;

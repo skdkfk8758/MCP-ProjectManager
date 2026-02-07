@@ -50,6 +50,10 @@ MCP 프로젝트 매니저는 Claude Code 워크플로우를 실행 가능한 �
 가장 빠른 시작 방법은:
 
 ```bash
+# 옵션 1: GitHub에서 직접 설치 (npm 계정 불필요)
+curl -fsSL https://raw.githubusercontent.com/skdkfk8758/MCP-ProjectManager/main/scripts/install.sh | bash
+
+# 옵션 2: npx (npm publish 후 사용 가능)
 npx create-mcp-pm
 ```
 

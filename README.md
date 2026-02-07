@@ -50,6 +50,10 @@ The system provides a visual dashboard, REST API, and integrates seamlessly with
 The fastest way to get started is:
 
 ```bash
+# Option 1: Direct install from GitHub (no npm account needed)
+curl -fsSL https://raw.githubusercontent.com/skdkfk8758/MCP-ProjectManager/main/scripts/install.sh | bash
+
+# Option 2: npx (available after npm publish)
 npx create-mcp-pm
 ```
 
