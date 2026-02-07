@@ -221,9 +221,9 @@ ${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━�
     log("Setting up Python backend...");
     const backendDir = join(INSTALL_DIR, "packages", "backend");
     try {
-      run('python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"', { cwd: backendDir });
+      run('python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -e ".[dev]"', { cwd: backendDir });
     } catch {
-      run("python3 -m venv .venv && .venv/bin/pip install -e .", { cwd: backendDir });
+      run("python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -e .", { cwd: backendDir });
     }
     ok("Python backend ready");
   } else {
