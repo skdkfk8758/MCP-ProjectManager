@@ -242,11 +242,15 @@ export async function setup(): Promise<void> {
 
   for (const [event, command] of Object.entries(hookDefs)) {
     const existing: any[] = hooks[event] || [];
-    // Remove old mcp-pm hooks
-    const filtered = existing.filter(
-      (h: any) => !(h.command && h.command.includes(`${BACKEND_PORT}/api/`))
-    );
-    filtered.push({ type: "command", command });
+    // Remove old mcp-pm hooks (both old and new format)
+    const filtered = existing.filter((h: any) => {
+      // Old format: { type, command }
+      if (h.command && h.command.includes(`${BACKEND_PORT}/api/`)) return false;
+      // New format: { hooks: [{ type, command }] }
+      if (h.hooks?.some((inner: any) => inner.command?.includes(`${BACKEND_PORT}/api/`))) return false;
+      return true;
+    });
+    filtered.push({ hooks: [{ type: "command", command }] });
     hooks[event] = filtered;
   }
 

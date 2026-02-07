@@ -34,12 +34,16 @@ export function installHooks(projectDir: string): void {
   for (const [event, filename] of Object.entries(hookMappings)) {
     const existing = hooks[event] || [];
     const alreadyInstalled = existing.some(
-      (h: any) => typeof h === "object" && h.command?.includes("mcp-pm")
+      (h: any) =>
+        (typeof h === "object" && h.command?.includes("mcp-pm")) ||
+        (h.hooks?.some((inner: any) => inner.command?.includes("mcp-pm")))
     );
     if (!alreadyInstalled) {
       existing.push({
-        type: "command",
-        command: `npx @mcp-pm/server hooks/${filename}`,
+        hooks: [{
+          type: "command",
+          command: `npx @mcp-pm/server hooks/${filename}`,
+        }],
       });
     }
     hooks[event] = existing;
