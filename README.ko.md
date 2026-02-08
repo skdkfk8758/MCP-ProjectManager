@@ -103,6 +103,99 @@ mcp-pm start
 - **백엔드 API**: http://localhost:48293
 - **API 문서**: http://localhost:48293/docs
 
+### 데모 데이터
+
+데모 데이터를 시딩하여 대시보드의 모든 기능을 즉시 확인할 수 있습니다:
+
+```bash
+# 데모 데이터 삽입 (3개 프로젝트, 26개 작업, 분석 데이터, 에이전트 통계)
+bash scripts/seed-demo.sh
+
+# 모든 데이터 초기화
+bash scripts/seed-demo.sh reset
+
+# 또는 API로 직접 호출
+curl -X POST http://localhost:48293/api/seed/demo
+curl -X POST http://localhost:48293/api/seed/reset
+```
+
+데모 데이터 포함 내용:
+- **3개 프로젝트**: MCP 프로젝트 매니저, 광고 시뮬레이터, 이커머스 플랫폼
+- **26개 작업**: 4개 상태(할 일, 진행 중, 완료, 보관)와 4개 우선순위에 분배
+- **5개 마일스톤**: 프로젝트별 다양한 상태
+- **30일치 분석 데이터**: 일별 통계, 토큰 사용량 추이, 세션 수
+- **7개 에이전트 구성**: executor, architect, explorer, researcher, designer의 성능 메트릭
+
+## 사용 가이드
+
+### 대시보드 페이지
+
+| 페이지 | URL | 설명 |
+|--------|-----|------|
+| **대시보드** | `/` | KPI 개요, 프로젝트 카드, 최근 활동 피드 |
+| **프로젝트** | `/projects` | 프로젝트 목록 (작업 수, 진행률 포함) |
+| **프로젝트 상세** | `/projects/:id` | 드래그앤드롭 칸반 보드 |
+| **타임라인** | `/projects/:id/timeline` | SVG 기반 이벤트 타임라인 (확대/축소/이동) |
+| **플로우 그래프** | `/projects/:id/flow` | 인터랙티브 에이전트/도구 실행 그래프 |
+| **분석** | `/analytics` | 차트: 작업 완료 추이, 토큰 사용량, 에이전트 분포, 세션 활동 |
+| **설정** | `/settings` | 서비스 상태, 데이터베이스 정보, 데이터 보존 정책 |
+
+### API 엔드포인트
+
+#### 프로젝트
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| `GET` | `/api/projects` | 프로젝트 목록 조회 |
+| `POST` | `/api/projects` | 프로젝트 생성 |
+| `GET` | `/api/projects/:id` | 프로젝트 상세 조회 |
+| `PUT` | `/api/projects/:id` | 프로젝트 수정 |
+| `DELETE` | `/api/projects/:id` | 프로젝트 삭제 |
+
+#### 작업
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| `GET` | `/api/tasks?project_id=N` | 프로젝트별 작업 조회 |
+| `POST` | `/api/tasks` | 작업 생성 |
+| `PUT` | `/api/tasks/:id` | 작업 수정 (상태, 우선순위 등) |
+| `DELETE` | `/api/tasks/:id` | 작업 삭제 |
+
+#### 마일스톤 & 레이블
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| `GET` | `/api/milestones?project_id=N` | 마일스톤 조회 |
+| `POST` | `/api/milestones` | 마일스톤 생성 |
+| `GET` | `/api/labels` | 레이블 조회 |
+| `POST` | `/api/labels` | 레이블 생성 |
+
+#### 세션 & 이벤트
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| `POST` | `/api/sessions` | 세션 생성 (UUID 필수) |
+| `GET` | `/api/sessions/:id` | 세션 및 이벤트 조회 |
+| `POST` | `/api/events` | 이벤트 기록 |
+
+#### 분석
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| `GET` | `/api/dashboard/overview` | KPI 요약 (프로젝트, 작업, 완료율) |
+| `GET` | `/api/dashboard/trends?days=30` | 시계열: 작업 완료, 토큰, 세션 |
+| `GET` | `/api/dashboard/agent-stats?days=30` | 에이전트 성능 메트릭 |
+
+#### 시딩 (데모 데이터)
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| `POST` | `/api/seed/demo` | 데모 데이터 삽입 |
+| `POST` | `/api/seed/reset` | 모든 데이터 삭제 |
+
+### 서비스 포트
+
+| 서비스 | 포트 | URL |
+|--------|------|-----|
+| 백엔드 API | 48293 | http://localhost:48293 |
+| 대시보드 | 48294 | http://localhost:48294 |
+| WebSocket | 48293 | ws://localhost:48293/ws |
+| API 문서 (Swagger) | 48293 | http://localhost:48293/docs |
+
 ## 아키텍처
 
 ### 3계층 설계
@@ -500,8 +593,8 @@ pip list | grep fastapi
 ### 대시보드가 비어 있거나 로드되지 않음
 
 ```bash
-# 포트 3000이 사용 중인지 확인
-lsof -i :3000
+# 포트 48294이 사용 중인지 확인
+lsof -i :48294
 
 # 대시보드 재빌드
 cd packages/dashboard

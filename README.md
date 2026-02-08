@@ -103,6 +103,99 @@ Once running:
 - **Backend API**: http://localhost:48293
 - **API Documentation**: http://localhost:48293/docs
 
+### Demo Data
+
+Seed the database with demo data to instantly see all dashboard features in action:
+
+```bash
+# Seed demo data (3 projects, 26 tasks, analytics, agent stats)
+bash scripts/seed-demo.sh
+
+# Reset all data
+bash scripts/seed-demo.sh reset
+
+# Or via API directly
+curl -X POST http://localhost:48293/api/seed/demo
+curl -X POST http://localhost:48293/api/seed/reset
+```
+
+Demo data includes:
+- **3 Projects**: MCP Project Manager, Ad Simulator, E-Commerce Platform
+- **26 Tasks**: Distributed across 4 statuses (todo, in_progress, done, archived) and 4 priorities
+- **5 Milestones**: Various states per project
+- **30 days of analytics**: Daily stats, token usage trends, session counts
+- **7 Agent configurations**: executor, architect, explorer, researcher, designer with performance metrics
+
+## Usage Guide
+
+### Dashboard Pages
+
+| Page | URL | Description |
+|------|-----|-------------|
+| **Dashboard** | `/` | KPI overview, project cards, recent activity feed |
+| **Projects** | `/projects` | Project list with task counts and progress |
+| **Project Detail** | `/projects/:id` | Kanban board with drag-and-drop task management |
+| **Timeline** | `/projects/:id/timeline` | SVG-based event timeline with zoom/pan |
+| **Flow Graph** | `/projects/:id/flow` | Interactive agent/tool execution graph |
+| **Analytics** | `/analytics` | Charts: task completion, token usage, agent distribution, session activity |
+| **Settings** | `/settings` | Service status, database info, data retention policies |
+
+### API Endpoints
+
+#### Projects
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/projects` | List all projects |
+| `POST` | `/api/projects` | Create a project |
+| `GET` | `/api/projects/:id` | Get project detail |
+| `PUT` | `/api/projects/:id` | Update project |
+| `DELETE` | `/api/projects/:id` | Delete project |
+
+#### Tasks
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/tasks?project_id=N` | List tasks by project |
+| `POST` | `/api/tasks` | Create a task |
+| `PUT` | `/api/tasks/:id` | Update task (status, priority, etc.) |
+| `DELETE` | `/api/tasks/:id` | Delete task |
+
+#### Milestones & Labels
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/milestones?project_id=N` | List milestones |
+| `POST` | `/api/milestones` | Create milestone |
+| `GET` | `/api/labels` | List labels |
+| `POST` | `/api/labels` | Create label |
+
+#### Sessions & Events
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/sessions` | Create session (UUID required) |
+| `GET` | `/api/sessions/:id` | Get session with events |
+| `POST` | `/api/events` | Log an event |
+
+#### Analytics
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/dashboard/overview` | KPI summary (projects, tasks, completion rate) |
+| `GET` | `/api/dashboard/trends?days=30` | Time series: tasks completed, tokens, sessions |
+| `GET` | `/api/dashboard/agent-stats?days=30` | Agent performance metrics |
+
+#### Seed (Demo Data)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/seed/demo` | Insert demo data |
+| `POST` | `/api/seed/reset` | Delete all data |
+
+### Service Ports
+
+| Service | Port | URL |
+|---------|------|-----|
+| Backend API | 48293 | http://localhost:48293 |
+| Dashboard | 48294 | http://localhost:48294 |
+| WebSocket | 48293 | ws://localhost:48293/ws |
+| API Docs (Swagger) | 48293 | http://localhost:48293/docs |
+
 ## Architecture
 
 ### 3-Tier Design
@@ -500,8 +593,8 @@ pip list | grep fastapi
 ### Dashboard blank or won't load
 
 ```bash
-# Check if port 3000 is in use
-lsof -i :3000
+# Check if port 48294 is in use
+lsof -i :48294
 
 # Rebuild dashboard
 cd packages/dashboard
