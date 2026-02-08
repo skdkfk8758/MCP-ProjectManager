@@ -85,6 +85,31 @@ export interface TrendData {
   session_count: number[];
 }
 
+export interface SessionInfo {
+  id: string;
+  project_id: number | null;
+  name: string | null;
+  start_time: string;
+  end_time: string | null;
+  summary: string | null;
+  event_count: number;
+  active_task_count: number;
+}
+
+export interface TaskExecutionResponse {
+  id: number;
+  task_id: number;
+  session_id: string;
+  started_at: string;
+  stopped_at: string | null;
+  status: string;
+  notes: string | null;
+  task_title: string | null;
+  ralph_state: Record<string, unknown> | null;
+  execution_mode: string | null;
+  ralph_context: Record<string, unknown> | null;
+}
+
 export const api = {
   projects: {
     list: () => apiFetch<Project[]>("/api/projects"),
@@ -100,6 +125,26 @@ export const api = {
     update: (id: number, data: Partial<TaskItem>) => apiFetch<TaskItem>(`/api/tasks/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     updateStatus: (id: number, status: string) => apiFetch<TaskItem>(`/api/tasks/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
     delete: (id: number) => apiFetch<{ deleted: boolean }>(`/api/tasks/${id}`, { method: "DELETE" }),
+  },
+  sessions: {
+    list: (projectId?: number) =>
+      apiFetch<SessionInfo[]>(projectId ? `/api/sessions?project_id=${projectId}` : "/api/sessions"),
+    create: (data: { id?: string; name?: string; project_id?: number; description?: string }) => {
+      const body = { id: data.id || crypto.randomUUID(), ...data };
+      return apiFetch<SessionInfo>("/api/sessions", { method: "POST", body: JSON.stringify(body) });
+    },
+    startTask: (sessionId: string, taskId: number, data?: { phase?: string; notes?: string }) =>
+      apiFetch<TaskExecutionResponse>(`/api/sessions/${sessionId}/tasks/${taskId}/start`, {
+        method: "POST",
+        body: data ? JSON.stringify(data) : undefined,
+      }),
+    stopTask: (sessionId: string, taskId: number, data?: { status?: string; notes?: string }) =>
+      apiFetch<TaskExecutionResponse>(`/api/sessions/${sessionId}/tasks/${taskId}/stop`, {
+        method: "POST",
+        body: data ? JSON.stringify(data) : undefined,
+      }),
+    listTasks: (sessionId: string) =>
+      apiFetch<TaskExecutionResponse[]>(`/api/sessions/${sessionId}/tasks`),
   },
   dashboard: {
     overview: () => apiFetch<DashboardOverview>("/api/dashboard/overview"),
