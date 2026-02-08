@@ -19,6 +19,8 @@ async def list_tasks(
     project_id: int | None = Query(None),
     status: str | None = Query(None),
     priority: str | None = Query(None),
+    execution_mode: str | None = Query(None),
+    phase: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Task).order_by(Task.sort_order)
@@ -28,6 +30,10 @@ async def list_tasks(
         query = query.where(Task.status == status)
     if priority:
         query = query.where(Task.priority == priority)
+    if execution_mode:
+        query = query.where(Task.execution_mode == execution_mode)
+    if phase:
+        query = query.where(Task.phase == phase)
     result = await db.execute(query)
     return result.scalars().all()
 
@@ -67,6 +73,8 @@ async def update_task(task_id: int, data: TaskUpdate, db: AsyncSession = Depends
         raise HTTPException(status_code=404, detail="Task not found")
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(task, field, value)
+    if task.status in ("done", "archived"):
+        task.phase = None
     await db.commit()
     await db.refresh(task)
 
@@ -88,6 +96,8 @@ async def update_task_status(task_id: int, data: TaskStatusUpdate, db: AsyncSess
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     task.status = data.status
+    if data.status in ("done", "archived"):
+        task.phase = None
     await db.commit()
     await db.refresh(task)
 
@@ -170,6 +180,8 @@ async def list_task_executions(task_id: int, db: AsyncSession = Depends(get_db))
             status=e.status,
             notes=e.notes,
             task_title=task.title,
+            ralph_state=e.ralph_state,
+            execution_mode=task.execution_mode,
         )
         for e in executions
     ]

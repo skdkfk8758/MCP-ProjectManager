@@ -17,8 +17,10 @@ export function registerPmTaskTools(server: McpServer): void {
         .default("todo")
         .describe("Initial task status"),
       due_date: z.string().optional().describe("Due date (ISO 8601 format)"),
+      execution_mode: z.enum(["manual", "ralph"]).optional().describe("Execution mode: 'manual' (default) or 'ralph' (ralph-loop until verified complete)"),
+      phase: z.enum(["design", "implementation", "review", "testing"]).optional().describe("Task phase: design, implementation, review, or testing"),
     },
-    async ({ project_id, title, description, priority, status, due_date }) => {
+    async ({ project_id, title, description, priority, status, due_date, execution_mode, phase }) => {
       try {
         const task = await apiPost<Task>("/api/tasks", {
           project_id,
@@ -27,12 +29,14 @@ export function registerPmTaskTools(server: McpServer): void {
           priority,
           status,
           due_date,
+          execution_mode,
+          phase,
         });
         return {
           content: [
             {
               type: "text" as const,
-              text: `Task created: #${task.id} "${task.title}" [${task.priority}/${task.status}]`,
+              text: `Task created: #${task.id} "${task.title}" [${task.priority}/${task.status}${task.phase ? `:${task.phase}` : ""}]${task.execution_mode === "ralph" ? " (ralph)" : ""}`,
             },
           ],
         };
@@ -54,8 +58,10 @@ export function registerPmTaskTools(server: McpServer): void {
       priority: z.string().optional().describe("New priority (low/medium/high/critical)"),
       status: z.string().optional().describe("New status (todo/in_progress/done)"),
       due_date: z.string().optional().describe("New due date (ISO 8601 format)"),
+      execution_mode: z.enum(["manual", "ralph"]).optional().describe("Execution mode: 'manual' or 'ralph'"),
+      phase: z.enum(["design", "implementation", "review", "testing"]).nullable().optional().describe("Task phase (null to clear)"),
     },
-    async ({ id, title, description, priority, status, due_date }) => {
+    async ({ id, title, description, priority, status, due_date, execution_mode, phase }) => {
       try {
         const task = await apiPut<Task>(`/api/tasks/${id}`, {
           title,
@@ -63,12 +69,14 @@ export function registerPmTaskTools(server: McpServer): void {
           priority,
           status,
           due_date,
+          execution_mode,
+          phase,
         });
         return {
           content: [
             {
               type: "text" as const,
-              text: `Task #${id} updated: "${task.title}" [${task.priority}/${task.status}]`,
+              text: `Task #${id} updated: "${task.title}" [${task.priority}/${task.status}${task.phase ? `:${task.phase}` : ""}]${task.execution_mode === "ralph" ? " (ralph)" : ""}`,
             },
           ],
         };
@@ -107,13 +115,17 @@ export function registerPmTaskTools(server: McpServer): void {
       project_id: z.number().optional().describe("Filter by project ID"),
       status: z.string().optional().describe("Filter by status (todo/in_progress/done)"),
       priority: z.string().optional().describe("Filter by priority (low/medium/high/critical)"),
+      execution_mode: z.enum(["manual", "ralph"]).optional().describe("Filter by execution mode"),
+      phase: z.enum(["design", "implementation", "review", "testing"]).optional().describe("Filter by phase"),
     },
-    async ({ project_id, status, priority }) => {
+    async ({ project_id, status, priority, execution_mode, phase }) => {
       try {
         const params = new URLSearchParams();
         if (project_id !== undefined) params.set("project_id", String(project_id));
         if (status) params.set("status", status);
         if (priority) params.set("priority", priority);
+        if (execution_mode) params.set("execution_mode", execution_mode);
+        if (phase) params.set("phase", phase);
 
         const query = params.toString();
         const url = `/api/tasks${query ? `?${query}` : ""}`;
@@ -127,7 +139,7 @@ export function registerPmTaskTools(server: McpServer): void {
 
         const lines = tasks.map(
           (t) =>
-            `#${t.id} [${t.priority}/${t.status}] ${t.title}${t.due_date ? ` (due: ${t.due_date})` : ""}`
+            `#${t.id} [${t.priority}/${t.status}${t.phase ? `:${t.phase}` : ""}]${t.execution_mode === "ralph" ? " (ralph)" : ""} ${t.title}${t.due_date ? ` (due: ${t.due_date})` : ""}`
         );
         return {
           content: [

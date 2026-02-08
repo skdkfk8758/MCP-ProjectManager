@@ -21,6 +21,13 @@ const priorityBadgeColors: Record<string, string> = {
   low: "bg-green-500/10 text-green-400",
 };
 
+const phaseBadgeConfig: Record<string, { label: string; color: string }> = {
+  design: { label: "설계", color: "bg-violet-500/10 text-violet-400" },
+  implementation: { label: "구현", color: "bg-blue-500/10 text-blue-400" },
+  review: { label: "리뷰", color: "bg-amber-500/10 text-amber-400" },
+  testing: { label: "테스트", color: "bg-teal-500/10 text-teal-400" },
+};
+
 interface TaskCardProps {
   task: TaskItem;
   isDragOverlay?: boolean;
@@ -78,6 +85,16 @@ export function TaskCard({ task, isDragOverlay }: TaskCardProps) {
             >
               {task.priority}
             </span>
+            {task.phase && phaseBadgeConfig[task.phase] && (
+              <span
+                className={cn(
+                  "text-xs px-1.5 py-0.5 rounded",
+                  phaseBadgeConfig[task.phase].color
+                )}
+              >
+                {phaseBadgeConfig[task.phase].label}
+              </span>
+            )}
             {task.due_date && (
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Calendar className="w-3 h-3" />

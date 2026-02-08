@@ -1,5 +1,8 @@
 from datetime import datetime
+from typing import Literal
 from pydantic import BaseModel
+
+VALID_PHASES = Literal["design", "implementation", "review", "testing"]
 
 
 class TaskCreate(BaseModel):
@@ -11,6 +14,8 @@ class TaskCreate(BaseModel):
     priority: str = "medium"
     sort_order: float = 0.0
     due_date: datetime | None = None
+    execution_mode: str | None = None
+    phase: VALID_PHASES | None = None
 
 
 class TaskUpdate(BaseModel):
@@ -21,6 +26,8 @@ class TaskUpdate(BaseModel):
     milestone_id: int | None = None
     sort_order: float | None = None
     due_date: datetime | None = None
+    execution_mode: str | None = None
+    phase: VALID_PHASES | None = None
 
 
 class TaskStatusUpdate(BaseModel):
@@ -50,6 +57,8 @@ class TaskResponse(BaseModel):
     priority: str
     sort_order: float
     due_date: datetime | None
+    execution_mode: str | None = None
+    phase: VALID_PHASES | None = None
     created_at: datetime
     updated_at: datetime
 

@@ -2,6 +2,7 @@ export type ProjectStatus = "active" | "completed" | "archived";
 export type TaskStatus = "todo" | "in_progress" | "done" | "archived";
 export type TaskPriority = "low" | "medium" | "high" | "critical";
 export type MilestoneStatus = "pending" | "in_progress" | "completed" | "overdue";
+export type TaskPhase = "design" | "implementation" | "review" | "testing";
 
 export interface Project {
   id: number;
@@ -26,6 +27,8 @@ export interface Task {
   updated_at: string;
   labels?: Label[];
   dependencies?: number[];
+  execution_mode?: "manual" | "ralph";
+  phase?: "design" | "implementation" | "review" | "testing" | null;
 }
 
 export interface Milestone {
@@ -66,4 +69,7 @@ export interface TaskExecution {
   status: string;
   notes?: string;
   task_title?: string;
+  ralph_state?: Record<string, unknown>;
+  execution_mode?: string;
+  ralph_context?: Record<string, unknown>;
 }

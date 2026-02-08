@@ -153,23 +153,39 @@ export function registerPmSessionTools(server: McpServer): void {
       task_id: z.number().describe("Task ID to start working on"),
       session_id: z.string().describe("Session ID where work is happening"),
       notes: z.string().optional().describe("Optional notes about the work"),
+      phase: z.enum(["design", "implementation", "review", "testing"]).optional().default("implementation").describe("Work phase (default: implementation)"),
     },
-    async ({ task_id, session_id, notes }) => {
+    async ({ task_id, session_id, notes, phase }) => {
       try {
         const body: Record<string, unknown> = {};
         if (notes) body.notes = notes;
+        if (phase) body.phase = phase;
 
         const execution = await apiPost<TaskExecution>(
           `/api/sessions/${session_id}/tasks/${task_id}/start`,
           body
         );
+
+        let text = `Started work on task #${task_id}${execution.task_title ? ` "${execution.task_title}"` : ""} in session ${session_id} (execution #${execution.id})`;
+
+        if (execution.execution_mode === "ralph") {
+          text += `\n\n## Ralph Loop Activation Required\nThis task is configured for ralph execution mode.\nActivate ralph with the following context:\n\n**Task:** ${execution.task_title || `#${task_id}`}\n**PM Task ID:** ${task_id}\n**PM Execution ID:** ${execution.id}\n**PM Session ID:** ${session_id}\n\nWhen ralph completes (architect verified), call:\n  pm_task_stop_work(task_id=${task_id}, session_id="${session_id}", status="completed")\n\nIf ralph fails/paused, call:\n  pm_task_stop_work(task_id=${task_id}, session_id="${session_id}", status="paused")`;
+
+          if (execution.ralph_context) {
+            const ctx = execution.ralph_context;
+            const prevState = ctx.ralph_state as Record<string, unknown> | undefined;
+            text += `\n\n## Resume Context\nPrevious execution #${ctx.previous_execution_id} (session: ${ctx.previous_session_id})`;
+            if (prevState) {
+              text += `\nPrevious iteration: ${prevState.iteration || "?"}/${prevState.max_iterations || "?"}`;
+              if (prevState.progress_summary) {
+                text += `\nPrevious progress: ${prevState.progress_summary}`;
+              }
+            }
+          }
+        }
+
         return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Started work on task #${task_id}${execution.task_title ? ` "${execution.task_title}"` : ""} in session ${session_id} (execution #${execution.id})`,
-            },
-          ],
+          content: [{ type: "text" as const, text }],
         };
       } catch (error) {
         return {
@@ -188,23 +204,31 @@ export function registerPmSessionTools(server: McpServer): void {
       session_id: z.string().describe("Session ID where work was happening"),
       status: z.enum(["completed", "paused"]).default("completed").describe("Stop status"),
       notes: z.string().optional().describe("Optional completion/pause notes"),
+      ralph_state: z.record(z.unknown()).optional().describe("Ralph loop state to save (iteration, progress, etc.)"),
     },
-    async ({ task_id, session_id, status, notes }) => {
+    async ({ task_id, session_id, status, notes, ralph_state }) => {
       try {
         const body: Record<string, unknown> = { status };
         if (notes) body.notes = notes;
+        if (ralph_state) body.ralph_state = ralph_state;
 
         const execution = await apiPost<TaskExecution>(
           `/api/sessions/${session_id}/tasks/${task_id}/stop`,
           body
         );
+
+        let text = `Stopped work on task #${task_id}${execution.task_title ? ` "${execution.task_title}"` : ""} [${status}] (execution #${execution.id})`;
+
+        if (execution.ralph_state) {
+          const rs = execution.ralph_state;
+          text += `\nRalph: ${rs.iteration || "?"}/${rs.max_iterations || "?"} iterations`;
+          if (rs.last_verification_result) {
+            text += `, ${rs.last_verification_result}`;
+          }
+        }
+
         return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Stopped work on task #${task_id}${execution.task_title ? ` "${execution.task_title}"` : ""} [${status}] (execution #${execution.id})`,
-            },
-          ],
+          content: [{ type: "text" as const, text }],
         };
       } catch (error) {
         return {

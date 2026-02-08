@@ -111,6 +111,7 @@ class TaskExecution(Base):
     stopped_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="active")  # active/completed/paused/abandoned
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ralph_state: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     task: Mapped["Task"] = relationship(back_populates="task_executions")
     session: Mapped[Session] = relationship(back_populates="task_executions")

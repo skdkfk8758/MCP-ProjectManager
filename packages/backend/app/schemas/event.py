@@ -46,11 +46,14 @@ class SessionListResponse(BaseModel):
 
 class TaskExecutionCreate(BaseModel):
     notes: str | None = None
+    ralph_state: dict | None = None
+    phase: str | None = None
 
 
 class TaskExecutionStop(BaseModel):
     status: str = "completed"  # completed/paused
     notes: str | None = None
+    ralph_state: dict | None = None
 
 
 class TaskExecutionResponse(BaseModel):
@@ -62,6 +65,9 @@ class TaskExecutionResponse(BaseModel):
     status: str
     notes: str | None = None
     task_title: str | None = None
+    ralph_state: dict | None = None
+    execution_mode: str | None = None
+    ralph_context: dict | None = None
 
     model_config = {"from_attributes": True}
 

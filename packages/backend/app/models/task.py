@@ -22,6 +22,8 @@ class Task(Base):
     priority: Mapped[str] = mapped_column(String(10), default="medium")  # low, medium, high, critical
     sort_order: Mapped[float] = mapped_column(Float, default=0.0)
     due_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    execution_mode: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    phase: Mapped[str | None] = mapped_column(String(20), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 

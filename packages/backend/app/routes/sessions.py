@@ -188,8 +188,15 @@ async def start_task_work(
         task_id=task_id,
         session_id=session_id,
         notes=data.notes if data else None,
+        ralph_state=data.ralph_state if data else None,
     )
     db.add(execution)
+
+    # Set task phase if provided
+    if data and data.phase:
+        task.phase = data.phase
+    elif not task.phase:
+        task.phase = "implementation"  # default phase when starting work
 
     # Update task status to in_progress
     task.status = "in_progress"
@@ -203,7 +210,7 @@ async def start_task_work(
         "session_id": session_id,
     })
 
-    return TaskExecutionResponse(
+    response = TaskExecutionResponse(
         id=execution.id,
         task_id=execution.task_id,
         session_id=execution.session_id,
@@ -212,7 +219,31 @@ async def start_task_work(
         status=execution.status,
         notes=execution.notes,
         task_title=task.title,
+        execution_mode=task.execution_mode,
+        ralph_state=execution.ralph_state,
+        ralph_context=None,
     )
+
+    if task.execution_mode == "ralph":
+        prev_exec_result = await db.execute(
+            select(TaskExecution)
+            .where(
+                TaskExecution.task_id == task_id,
+                TaskExecution.status == "paused",
+                TaskExecution.ralph_state.isnot(None),
+            )
+            .order_by(TaskExecution.stopped_at.desc())
+            .limit(1)
+        )
+        prev_exec = prev_exec_result.scalar_one_or_none()
+        if prev_exec:
+            response.ralph_context = {
+                "previous_execution_id": prev_exec.id,
+                "previous_session_id": prev_exec.session_id,
+                "ralph_state": prev_exec.ralph_state,
+            }
+
+    return response
 
 
 @router.post("/{session_id}/tasks/{task_id}/stop", response_model=TaskExecutionResponse)
@@ -245,6 +276,8 @@ async def stop_task_work(
     execution.stopped_at = datetime.now(timezone.utc)
     if data and data.notes:
         execution.notes = data.notes
+    if data and data.ralph_state:
+        execution.ralph_state = data.ralph_state
 
     # Update task status based on stop status
     task_result = await db.execute(select(Task).where(Task.id == task_id))
@@ -252,6 +285,7 @@ async def stop_task_work(
     if task:
         if stop_status == "completed":
             task.status = "done"
+            task.phase = None
         elif stop_status == "paused":
             task.status = "todo"
 
@@ -274,6 +308,8 @@ async def stop_task_work(
         status=execution.status,
         notes=execution.notes,
         task_title=task.title if task else None,
+        ralph_state=execution.ralph_state,
+        execution_mode=task.execution_mode if task else None,
     )
 
 
@@ -283,7 +319,7 @@ async def list_session_tasks(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(TaskExecution, Task.title)
+        select(TaskExecution, Task.title, Task.execution_mode)
         .join(Task, TaskExecution.task_id == Task.id)
         .where(TaskExecution.session_id == session_id)
         .order_by(TaskExecution.started_at.desc())
@@ -300,6 +336,8 @@ async def list_session_tasks(
             status=row.TaskExecution.status,
             notes=row.TaskExecution.notes,
             task_title=row.title,
+            ralph_state=row.TaskExecution.ralph_state,
+            execution_mode=row.execution_mode,
         )
         for row in rows
     ]
