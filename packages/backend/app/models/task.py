@@ -7,6 +7,7 @@ from app.models import Base
 
 if TYPE_CHECKING:
     from app.models.project import Project
+    from app.models.event import TaskExecution
 
 
 class Task(Base):
@@ -25,6 +26,7 @@ class Task(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
     project: Mapped[Project] = relationship(back_populates="tasks")
+    task_executions: Mapped[list[TaskExecution]] = relationship(back_populates="task", cascade="all, delete-orphan")
 
 
 class TaskDependency(Base):

@@ -43,3 +43,27 @@ export interface Label {
   name: string;
   color: string;
 }
+
+export interface SessionInfo {
+  id: string;
+  project_id?: number;
+  name?: string;
+  description?: string;
+  start_time: string;
+  end_time?: string;
+  token_usage?: Record<string, unknown>;
+  summary?: string;
+  event_count?: number;
+  active_task_count?: number;
+}
+
+export interface TaskExecution {
+  id: number;
+  task_id: number;
+  session_id: string;
+  started_at: string;
+  stopped_at?: string;
+  status: string;
+  notes?: string;
+  task_title?: string;
+}

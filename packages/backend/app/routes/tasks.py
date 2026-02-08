@@ -3,10 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database import get_db
 from app.models.task import Task
+from app.models.event import TaskExecution
 from app.schemas.task import (
     TaskCreate, TaskUpdate, TaskStatusUpdate,
     TaskReorderRequest, TaskBulkUpdate, TaskResponse,
 )
+from app.schemas.event import TaskExecutionResponse
 from app.services.websocket import manager
 
 router = APIRouter()
@@ -141,3 +143,33 @@ async def delete_task(task_id: int, db: AsyncSession = Depends(get_db)):
     await manager.broadcast("task", "deleted", {"id": task_id})
 
     return {"deleted": True}
+
+
+@router.get("/{task_id}/executions", response_model=list[TaskExecutionResponse])
+async def list_task_executions(task_id: int, db: AsyncSession = Depends(get_db)):
+    # Verify task exists
+    task_result = await db.execute(select(Task).where(Task.id == task_id))
+    task = task_result.scalar_one_or_none()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    result = await db.execute(
+        select(TaskExecution)
+        .where(TaskExecution.task_id == task_id)
+        .order_by(TaskExecution.started_at.desc())
+    )
+    executions = result.scalars().all()
+
+    return [
+        TaskExecutionResponse(
+            id=e.id,
+            task_id=e.task_id,
+            session_id=e.session_id,
+            started_at=e.started_at,
+            stopped_at=e.stopped_at,
+            status=e.status,
+            notes=e.notes,
+            task_title=task.title,
+        )
+        for e in executions
+    ]

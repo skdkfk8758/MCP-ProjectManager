@@ -1,12 +1,13 @@
 from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import String, Text, DateTime, Integer, Float, Boolean, ForeignKey, JSON, func
+from sqlalchemy import String, Text, DateTime, Integer, Boolean, ForeignKey, JSON, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models import Base
 
 if TYPE_CHECKING:
     from app.models.project import Project
+    from app.models.task import Task
 
 
 class Session(Base):
@@ -14,6 +15,8 @@ class Session(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)  # UUID
     project_id: Mapped[int | None] = mapped_column(ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
+    name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     start_time: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     end_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     token_usage: Mapped[dict | None] = mapped_column(JSON, nullable=True)
@@ -21,6 +24,7 @@ class Session(Base):
 
     project: Mapped[Project | None] = relationship(back_populates="sessions")
     events: Mapped[list[Event]] = relationship(back_populates="session", lazy="selectin", cascade="all, delete-orphan")
+    task_executions: Mapped[list[TaskExecution]] = relationship(back_populates="session", cascade="all, delete-orphan")
 
 
 class Event(Base):
@@ -95,3 +99,18 @@ class Error(Base):
     stack_trace: Mapped[str | None] = mapped_column(Text, nullable=True)
     resolved: Mapped[bool] = mapped_column(Boolean, default=False)
     timestamp: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class TaskExecution(Base):
+    __tablename__ = "task_executions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"))
+    session_id: Mapped[str] = mapped_column(ForeignKey("sessions.id", ondelete="CASCADE"))
+    started_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    stopped_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="active")  # active/completed/paused/abandoned
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    task: Mapped["Task"] = relationship(back_populates="task_executions")
+    session: Mapped[Session] = relationship(back_populates="task_executions")

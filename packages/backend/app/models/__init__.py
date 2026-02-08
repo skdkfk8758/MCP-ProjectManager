@@ -16,5 +16,6 @@ from app.models.event import (  # noqa: E402, F401
     ToolCall,
     FileChange,
     Error,
+    TaskExecution,
 )
 from app.models.analytics import DailyStats, AgentUsageStats  # noqa: E402, F401
