@@ -142,4 +142,61 @@ export function registerPmProjectTools(server: McpServer): void {
       }
     }
   );
+
+  server.tool(
+    "pm_project_init_from_git",
+    "Initialize a project from git history. Imports commits as events, tags as milestones, file changes, and daily stats.",
+    {
+      project_path: z.string().describe("Absolute path to the git repository"),
+      project_name: z.string().optional().describe("Project name (default: directory name)"),
+      max_commits: z.number().optional().describe("Max commits to import (default: 500)"),
+      since: z.string().optional().describe("Import commits since date (YYYY-MM-DD)"),
+    },
+    async ({ project_path, project_name, max_commits, since }) => {
+      try {
+        const body: Record<string, unknown> = { project_path };
+        if (project_name) body.project_name = project_name;
+        if (max_commits) body.max_commits = max_commits;
+        if (since) body.since = since;
+
+        const result = await apiRequest<{
+          status: string;
+          project_id?: number;
+          message?: string;
+          counts?: {
+            commits: number;
+            sessions: number;
+            events: number;
+            file_changes: number;
+            milestones: number;
+            daily_stats: number;
+          };
+        }>("/api/seed/init-from-git", { method: "POST", body, timeout: 60000 });
+
+        if (result.status === "error") {
+          return {
+            content: [{ type: "text" as const, text: `Failed: ${result.message}` }],
+          };
+        }
+
+        const c = result.counts!;
+        const lines = [
+          `Project initialized from git history (ID: ${result.project_id})`,
+          `  Commits: ${c.commits}`,
+          `  Sessions: ${c.sessions} (grouped by date)`,
+          `  Events: ${c.events}`,
+          `  File changes: ${c.file_changes}`,
+          `  Milestones: ${c.milestones} (from tags)`,
+          `  Daily stats: ${c.daily_stats}`,
+        ];
+        return {
+          content: [{ type: "text" as const, text: lines.join("\n") }],
+        };
+      } catch (error) {
+        return {
+          content: [{ type: "text" as const, text: `Failed to init from git: ${error}` }],
+        };
+      }
+    }
+  );
 }

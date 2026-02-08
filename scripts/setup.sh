@@ -348,6 +348,21 @@ else
   warn "Project registration skipped (may already exist)"
 fi
 
+# Git history initialization (if repo has git)
+if [ -d "$PROJECT_DIR/.git" ]; then
+  log "Git 히스토리 초기화 중..."
+  INIT_RESULT=$(curl -sf -X POST "http://localhost:$BACKEND_PORT/api/seed/init-from-git" \
+    -H "Content-Type: application/json" \
+    -d "{\"project_path\": \"$PROJECT_DIR\", \"project_name\": \"$PROJECT_NAME\", \"max_commits\": 200}" \
+    --max-time 30 2>/dev/null || echo "FAIL")
+
+  if echo "$INIT_RESULT" | grep -q '"status":"success"'; then
+    ok "Git 히스토리 초기화 완료"
+  else
+    warn "Git 히스토리 초기화 건너뜀 (선택 기능)"
+  fi
+fi
+
 # ============================================================================
 # Step 7: Verification
 # ============================================================================

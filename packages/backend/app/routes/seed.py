@@ -9,6 +9,9 @@ from app.models.analytics import DailyStats, AgentUsageStats
 import uuid
 import random
 from datetime import date, datetime, timedelta
+import subprocess
+import os
+from collections import defaultdict
 
 router = APIRouter()
 
@@ -306,4 +309,227 @@ async def reset_all_data(db: AsyncSession = Depends(get_db)):
     return {
         "status": "success",
         "message": "All data has been reset"
+    }
+
+
+@router.post("/init-from-git")
+async def init_from_git(request: dict, db: AsyncSession = Depends(get_db)):
+    """Initialize a project from git history. Imports commits, tags, file changes, and daily stats."""
+
+    project_path = request.get("project_path")
+    if not project_path or not os.path.isdir(project_path):
+        return {"status": "error", "message": f"Invalid project path: {project_path}"}
+
+    git_dir = os.path.join(project_path, ".git")
+    if not os.path.isdir(git_dir):
+        return {"status": "error", "message": f"Not a git repository: {project_path}"}
+
+    project_name = request.get("project_name") or os.path.basename(os.path.abspath(project_path))
+    max_commits = request.get("max_commits", 500)
+    since = request.get("since")
+
+    # 1. Find or create project
+    result = await db.execute(select(Project).where(Project.path == project_path))
+    project = result.scalar_one_or_none()
+    if not project:
+        project = Project(name=project_name, path=project_path, status="active",
+                          description=f"Initialized from git history")
+        db.add(project)
+        await db.flush()
+
+    pid = project.id
+
+    # 2. Parse git log
+    git_log_cmd = [
+        "git", "-C", project_path, "log",
+        f"--format=%H|%ai|%s|%an",
+        f"--max-count={max_commits}",
+    ]
+    if since:
+        git_log_cmd.append(f"--since={since}")
+
+    try:
+        log_result = subprocess.run(git_log_cmd, capture_output=True, text=True, timeout=30)
+    except Exception as e:
+        return {"status": "error", "message": f"Failed to run git log: {e}"}
+
+    if log_result.returncode != 0:
+        return {"status": "error", "message": f"git log failed: {log_result.stderr.strip()}"}
+
+    lines = [l.strip() for l in log_result.stdout.strip().split("\n") if l.strip()]
+    if not lines:
+        return {"status": "error", "message": "No commits found"}
+
+    # 3. Group commits by date -> Sessions
+    commits_by_date = defaultdict(list)
+    for line in lines:
+        parts = line.split("|", 3)
+        if len(parts) < 4:
+            continue
+        commit_hash, timestamp_str, message, author = parts
+        try:
+            commit_time = datetime.fromisoformat(timestamp_str.strip())
+        except ValueError:
+            continue
+        commit_date = commit_time.date()
+        commits_by_date[commit_date].append({
+            "hash": commit_hash.strip(),
+            "time": commit_time,
+            "message": message.strip(),
+            "author": author.strip(),
+        })
+
+    sessions_map = {}  # date -> session_id
+    all_events = []
+    all_file_changes = []
+    commit_hashes = []
+
+    for d, commits in commits_by_date.items():
+        sid = str(uuid.uuid4())
+        sessions_map[d] = sid
+
+        earliest = min(c["time"] for c in commits)
+        latest = max(c["time"] for c in commits)
+
+        session = Session(
+            id=sid,
+            project_id=pid,
+            start_time=earliest,
+            end_time=latest,
+            summary=f"Git history: {len(commits)} commit(s) on {d.isoformat()}",
+        )
+        db.add(session)
+
+        for c in commits:
+            event = Event(
+                session_id=sid,
+                event_type="commit",
+                timestamp=c["time"],
+                payload={"hash": c["hash"][:8], "message": c["message"], "author": c["author"]},
+            )
+            all_events.append(event)
+            commit_hashes.append(c["hash"])
+
+    await db.flush()
+    db.add_all(all_events)
+    await db.flush()
+
+    # 4. File changes per commit
+    EMPTY_TREE = "4b825dc642cb6eb9a060e54bf899d15363d7aa16"
+
+    for i, full_hash in enumerate(commit_hashes):
+        parent_ref = EMPTY_TREE if i == len(commit_hashes) - 1 else f"{full_hash}^"
+        diff_cmd = [
+            "git", "-C", project_path, "diff", "--numstat", f"{parent_ref}..{full_hash}",
+        ]
+        try:
+            diff_result = subprocess.run(diff_cmd, capture_output=True, text=True, timeout=10)
+        except Exception:
+            continue
+
+        if diff_result.returncode != 0:
+            continue
+
+        # Find the session for this commit
+        commit_date = None
+        for d, commits in commits_by_date.items():
+            if any(c["hash"] == full_hash for c in commits):
+                commit_date = d
+                break
+        if not commit_date or commit_date not in sessions_map:
+            continue
+
+        sid = sessions_map[commit_date]
+
+        for diff_line in diff_result.stdout.strip().split("\n"):
+            if not diff_line.strip():
+                continue
+            diff_parts = diff_line.split("\t")
+            if len(diff_parts) < 3:
+                continue
+            added_str, removed_str, file_path = diff_parts[0], diff_parts[1], diff_parts[2]
+
+            try:
+                added = int(added_str) if added_str != "-" else 0
+                removed = int(removed_str) if removed_str != "-" else 0
+            except ValueError:
+                continue
+
+            if added > 0 and removed == 0:
+                change_type = "created"
+            elif removed > 0 and added == 0:
+                change_type = "deleted"
+            else:
+                change_type = "modified"
+
+            fc = FileChange(
+                session_id=sid,
+                file_path=file_path,
+                change_type=change_type,
+                lines_added=added,
+                lines_removed=removed,
+            )
+            all_file_changes.append(fc)
+
+    if all_file_changes:
+        db.add_all(all_file_changes)
+        await db.flush()
+
+    # 5. Git tags -> Milestones
+    tag_cmd = ["git", "-C", project_path, "tag", "-l", "--format=%(refname:short)|%(creatordate:iso)"]
+    milestones_count = 0
+    try:
+        tag_result = subprocess.run(tag_cmd, capture_output=True, text=True, timeout=10)
+        if tag_result.returncode == 0 and tag_result.stdout.strip():
+            for tag_line in tag_result.stdout.strip().split("\n"):
+                if not tag_line.strip():
+                    continue
+                tag_parts = tag_line.split("|", 1)
+                tag_name = tag_parts[0].strip()
+                if not tag_name:
+                    continue
+                tag_date = None
+                if len(tag_parts) > 1 and tag_parts[1].strip():
+                    try:
+                        tag_date = datetime.fromisoformat(tag_parts[1].strip())
+                    except ValueError:
+                        pass
+                milestone = Milestone(
+                    project_id=pid,
+                    title=tag_name,
+                    status="completed",
+                    due_date=tag_date,
+                )
+                db.add(milestone)
+                milestones_count += 1
+    except Exception:
+        pass
+
+    # 6. Daily stats
+    daily_stats_count = 0
+    for d, commits in commits_by_date.items():
+        stats = DailyStats(
+            project_id=pid,
+            date=d,
+            tasks_completed=len(commits),
+            session_count=1,
+            tokens_used=0,
+            agent_calls=0,
+        )
+        db.add(stats)
+        daily_stats_count += 1
+
+    await db.commit()
+
+    return {
+        "status": "success",
+        "project_id": pid,
+        "counts": {
+            "commits": len(commit_hashes),
+            "sessions": len(sessions_map),
+            "events": len(all_events),
+            "file_changes": len(all_file_changes),
+            "milestones": milestones_count,
+            "daily_stats": daily_stats_count,
+        },
     }
