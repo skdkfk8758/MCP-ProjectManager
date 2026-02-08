@@ -10,6 +10,7 @@ import { registerPmActionTools } from "./pm-actions.js";
 import { registerPmQueryTools } from "./pm-query.js";
 import { registerPmAnalysisTools } from "./pm-analysis.js";
 import { registerPmSessionTools } from "./pm-session.js";
+import { registerPmUpdateTools } from "./pm-update.js";
 
 export function registerAllTools(server: McpServer): void {
   registerFlowEventTools(server);
@@ -23,4 +24,5 @@ export function registerAllTools(server: McpServer): void {
   registerPmQueryTools(server);
   registerPmAnalysisTools(server);
   registerPmSessionTools(server);
+  registerPmUpdateTools(server);
 }
