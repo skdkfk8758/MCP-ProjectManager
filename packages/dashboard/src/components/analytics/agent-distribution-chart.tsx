@@ -28,7 +28,7 @@ export function AgentDistributionChart({ data }: AgentDistributionChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
-        No agent data available
+        에이전트 데이터가 없습니다
       </div>
     );
   }

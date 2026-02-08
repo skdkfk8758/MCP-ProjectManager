@@ -26,10 +26,10 @@ import { ArrowLeft, Clock, Network } from "lucide-react";
 import Link from "next/link";
 
 const COLUMNS = [
-  { id: "todo", title: "To Do", color: "border-t-blue-500" },
-  { id: "in_progress", title: "In Progress", color: "border-t-yellow-500" },
-  { id: "done", title: "Done", color: "border-t-green-500" },
-  { id: "archived", title: "Archived", color: "border-t-gray-500" },
+  { id: "todo", title: "할 일", color: "border-t-blue-500" },
+  { id: "in_progress", title: "진행 중", color: "border-t-yellow-500" },
+  { id: "done", title: "완료", color: "border-t-green-500" },
+  { id: "archived", title: "보관", color: "border-t-gray-500" },
 ];
 
 interface KanbanBoardProps {
@@ -136,11 +136,11 @@ export function KanbanBoard({ paramsPromise }: KanbanBoardProps) {
           className="text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="w-5 h-5" aria-hidden="true" />
-          <span className="sr-only">Back to dashboard</span>
+          <span className="sr-only">대시보드로 돌아가기</span>
         </Link>
         <div>
           <h1 className="text-2xl font-bold">
-            {project?.name || "Loading..."}
+            {project?.name || "로딩 중..."}
           </h1>
           {project?.description && (
             <p className="text-sm text-muted-foreground">
@@ -154,14 +154,14 @@ export function KanbanBoard({ paramsPromise }: KanbanBoardProps) {
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-accent transition-colors"
           >
             <Clock className="w-4 h-4" />
-            Timeline
+            타임라인
           </Link>
           <Link
             href={`/projects/${projectId}/flow`}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-accent transition-colors"
           >
             <Network className="w-4 h-4" />
-            Flow
+            플로우
           </Link>
           <CreateTaskButton projectId={projectId} />
         </div>

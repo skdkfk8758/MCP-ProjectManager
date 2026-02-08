@@ -151,7 +151,7 @@ export function FlowGraphView({ paramsPromise }: FlowGraphViewProps) {
         <Link href={`/projects/${projectId}`} className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold">Flow Graph</h1>
+        <h1 className="text-2xl font-bold">플로우 그래프</h1>
       </div>
 
       <div className="h-[calc(100vh-7rem)] rounded-lg border border-border bg-card overflow-hidden relative">
@@ -179,10 +179,10 @@ export function FlowGraphView({ paramsPromise }: FlowGraphViewProps) {
             className="!bg-muted !border-border"
           />
           <Panel position="top-right" className="flex gap-2">
-            <FilterButton active={filterType === "all"} onClick={() => setFilterType("all")}>All</FilterButton>
-            <FilterButton active={filterType === "agent"} onClick={() => setFilterType("agent")}>Agents</FilterButton>
-            <FilterButton active={filterType === "skill"} onClick={() => setFilterType("skill")}>Skills</FilterButton>
-            <FilterButton active={filterType === "tool"} onClick={() => setFilterType("tool")}>Tools</FilterButton>
+            <FilterButton active={filterType === "all"} onClick={() => setFilterType("all")}>전체</FilterButton>
+            <FilterButton active={filterType === "agent"} onClick={() => setFilterType("agent")}>에이전트</FilterButton>
+            <FilterButton active={filterType === "skill"} onClick={() => setFilterType("skill")}>스킬</FilterButton>
+            <FilterButton active={filterType === "tool"} onClick={() => setFilterType("tool")}>도구</FilterButton>
           </Panel>
         </ReactFlow>
 

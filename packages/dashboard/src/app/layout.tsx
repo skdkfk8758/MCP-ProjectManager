@@ -5,8 +5,8 @@ import { Sidebar } from "@/components/layout/sidebar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MCP Project Manager",
-  description: "Project management dashboard for Claude Code workflows",
+  title: "MCP 프로젝트 매니저",
+  description: "Claude Code 워크플로우를 위한 프로젝트 관리 대시보드",
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="dark">
           <QueryProvider>

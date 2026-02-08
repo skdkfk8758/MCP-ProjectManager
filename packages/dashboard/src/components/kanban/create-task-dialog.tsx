@@ -36,9 +36,9 @@ export function CreateTaskButton({ projectId }: CreateTaskButtonProps) {
         className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors"
       >
         <Plus className="w-4 h-4" />
-        Add Task
+        작업 추가
       </button>
-      <Dialog open={open} onClose={() => setOpen(false)} title="Create Task">
+      <Dialog open={open} onClose={() => setOpen(false)} title="작업 만들기">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -56,41 +56,41 @@ export function CreateTaskButton({ projectId }: CreateTaskButtonProps) {
         >
           <div>
             <label className="block text-sm text-muted-foreground mb-1">
-              Title
+              제목
             </label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-3 py-2 rounded-md bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Task title"
+              placeholder="작업 제목"
               autoFocus
             />
           </div>
           <div>
             <label className="block text-sm text-muted-foreground mb-1">
-              Description
+              설명
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 rounded-md bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               rows={3}
-              placeholder="Optional description"
+              placeholder="설명 (선택)"
             />
           </div>
           <div>
             <label className="block text-sm text-muted-foreground mb-1">
-              Priority
+              우선순위
             </label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
               className="w-full px-3 py-2 rounded-md bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
+              <option value="low">낮음</option>
+              <option value="medium">보통</option>
+              <option value="high">높음</option>
+              <option value="critical">긴급</option>
             </select>
           </div>
           <div className="flex justify-end gap-2">
@@ -99,14 +99,14 @@ export function CreateTaskButton({ projectId }: CreateTaskButtonProps) {
               onClick={() => setOpen(false)}
               className="px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground"
             >
-              Cancel
+              취소
             </button>
             <button
               type="submit"
               disabled={!title.trim() || mutation.isPending}
               className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:bg-primary/90 disabled:opacity-50"
             >
-              {mutation.isPending ? "Creating..." : "Create"}
+              {mutation.isPending ? "생성 중..." : "만들기"}
             </button>
           </div>
         </form>

@@ -99,7 +99,7 @@ mcp-pm start
 
 실행 후:
 
-- **대시보드**: http://localhost:3000
+- **대시보드**: http://localhost:48294
 - **백엔드 API**: http://localhost:48293
 - **API 문서**: http://localhost:48293/docs
 
@@ -271,7 +271,7 @@ python main.py
 ```bash
 cd packages/dashboard
 pnpm dev
-# 대시보드가 http://localhost:3000에서 실행됩니다
+# 대시보드가 http://localhost:48294에서 실행됩니다
 ```
 
 #### MCP 서버 시작 (로컬 테스트용)

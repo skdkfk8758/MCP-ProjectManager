@@ -18,7 +18,7 @@ export function SessionStatsChart({ data }: SessionStatsChartProps) {
   if (!data || data.dates.length === 0) {
     return (
       <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
-        No session data available
+        세션 데이터가 없습니다
       </div>
     );
   }

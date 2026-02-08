@@ -15,7 +15,7 @@ export default function ProjectsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Projects</h1>
+        <h1 className="text-2xl font-bold">프로젝트</h1>
         <CreateProjectButton />
       </div>
       {isLoading ? (
@@ -33,11 +33,11 @@ export default function ProjectsPage() {
                   <div>
                     <h3 className="font-medium">{project.name}</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {project.description || "No description"}
+                      {project.description || "설명 없음"}
                     </p>
                   </div>
                   <div className="text-right text-sm text-muted-foreground">
-                    <p>{project.task_count} tasks</p>
+                    <p>{project.task_count} 작업</p>
                     <p>
                       {formatDistanceToNow(new Date(project.updated_at), {
                         addSuffix: true,
@@ -50,9 +50,9 @@ export default function ProjectsPage() {
           ))}
           {(!projects || projects.length === 0) && (
             <div className="text-center py-16 text-muted-foreground">
-              <p className="text-lg mb-2">No projects yet</p>
+              <p className="text-lg mb-2">아직 프로젝트가 없습니다</p>
               <p className="text-sm">
-                Create your first project to get started.
+                첫 프로젝트를 만들어 시작하세요.
               </p>
             </div>
           )}

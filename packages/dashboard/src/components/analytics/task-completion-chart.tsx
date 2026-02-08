@@ -16,7 +16,7 @@ interface TaskCompletionChartProps {
 
 export function TaskCompletionChart({ data }: TaskCompletionChartProps) {
   if (!data || data.dates.length === 0) {
-    return <EmptyChart message="No task data available" />;
+    return <EmptyChart message="작업 데이터가 없습니다" />;
   }
 
   const chartData = data.dates.map((date, i) => ({

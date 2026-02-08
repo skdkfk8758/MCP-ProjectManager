@@ -30,7 +30,7 @@ export default function AnalyticsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Analytics</h1>
+        <h1 className="text-2xl font-bold">분석</h1>
         <div className="flex gap-2">
           {[7, 14, 30, 90].map((d) => (
             <button
@@ -49,21 +49,21 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <ChartCard title="Task Completion Trend">
+        <ChartCard title="작업 완료 추이">
           <TaskCompletionChart data={trends} />
         </ChartCard>
-        <ChartCard title="Token Usage">
+        <ChartCard title="토큰 사용량">
           <TokenUsageChart data={trends} />
         </ChartCard>
-        <ChartCard title="Agent Distribution">
+        <ChartCard title="에이전트 분포">
           <AgentDistributionChart data={agentStats} />
         </ChartCard>
-        <ChartCard title="Session Activity">
+        <ChartCard title="세션 활동">
           <SessionStatsChart data={trends} />
         </ChartCard>
       </div>
 
-      <ChartCard title="Agent Performance">
+      <ChartCard title="에이전트 성능">
         <AgentPerformanceTable data={agentStats} />
       </ChartCard>
     </div>

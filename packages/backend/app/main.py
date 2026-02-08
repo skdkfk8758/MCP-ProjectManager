@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
-from app.routes import projects, tasks, milestones, labels, sessions, events, analytics, ai, ws
+from app.routes import projects, tasks, milestones, labels, sessions, events, analytics, ai, ws, seed
 
 
 @asynccontextmanager
@@ -19,7 +19,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=["http://localhost:48294", "http://localhost:48295"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,6 +34,7 @@ app.include_router(events.router, prefix="/api/events", tags=["events"])
 app.include_router(analytics.router, prefix="/api/dashboard", tags=["analytics"])
 app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
 app.include_router(ws.router, tags=["websocket"])
+app.include_router(seed.router, prefix="/api/seed", tags=["seed"])
 
 
 @app.get("/health")

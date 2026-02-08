@@ -31,12 +31,12 @@ export function CreateProjectButton() {
         className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors"
       >
         <Plus className="w-4 h-4" />
-        New Project
+        새 프로젝트
       </button>
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
-        title="Create Project"
+        title="프로젝트 만들기"
       >
         <form
           onSubmit={(e) => {
@@ -51,26 +51,26 @@ export function CreateProjectButton() {
         >
           <div>
             <label className="block text-sm text-muted-foreground mb-1">
-              Name
+              이름
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 rounded-md bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Project name"
+              placeholder="프로젝트 이름"
               autoFocus
             />
           </div>
           <div>
             <label className="block text-sm text-muted-foreground mb-1">
-              Description
+              설명
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 rounded-md bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               rows={3}
-              placeholder="Optional description"
+              placeholder="설명 (선택)"
             />
           </div>
           <div className="flex justify-end gap-2">
@@ -79,14 +79,14 @@ export function CreateProjectButton() {
               onClick={() => setOpen(false)}
               className="px-3 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground"
             >
-              Cancel
+              취소
             </button>
             <button
               type="submit"
               disabled={!name.trim() || mutation.isPending}
               className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:bg-primary/90 disabled:opacity-50"
             >
-              {mutation.isPending ? "Creating..." : "Create"}
+              {mutation.isPending ? "생성 중..." : "만들기"}
             </button>
           </div>
         </form>

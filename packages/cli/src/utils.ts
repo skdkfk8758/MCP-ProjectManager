@@ -38,6 +38,6 @@ export function getDataDir(): string {
 }
 
 export const BACKEND_PORT = 48293;
-export const DASHBOARD_PORT = 3000;
+export const DASHBOARD_PORT = 48294;
 export const BACKEND_URL = `http://localhost:${BACKEND_PORT}`;
 export const DASHBOARD_URL = `http://localhost:${DASHBOARD_PORT}`;

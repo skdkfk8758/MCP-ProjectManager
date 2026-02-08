@@ -14,7 +14,7 @@ export function AgentPerformanceTable({ data }: AgentPerformanceTableProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center py-8 text-muted-foreground text-sm">
-        No agent performance data available
+        에이전트 성능 데이터가 없습니다
       </div>
     );
   }
@@ -25,19 +25,19 @@ export function AgentPerformanceTable({ data }: AgentPerformanceTableProps) {
         <thead>
           <tr className="border-b border-border">
             <th className="text-left py-2 px-3 text-muted-foreground font-medium">
-              Agent
+              에이전트
             </th>
             <th className="text-left py-2 px-3 text-muted-foreground font-medium">
-              Model
+              모델
             </th>
             <th className="text-right py-2 px-3 text-muted-foreground font-medium">
-              Calls
+              호출
             </th>
             <th className="text-right py-2 px-3 text-muted-foreground font-medium">
-              Avg Duration
+              평균 소요시간
             </th>
             <th className="text-right py-2 px-3 text-muted-foreground font-medium">
-              Success Rate
+              성공률
             </th>
           </tr>
         </thead>

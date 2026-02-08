@@ -12,10 +12,10 @@ import {
 } from "lucide-react";
 
 const navItems: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/projects", label: "Projects", icon: FolderKanban },
-  { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/", label: "대시보드", icon: LayoutDashboard },
+  { href: "/projects", label: "프로젝트", icon: FolderKanban },
+  { href: "/analytics", label: "분석", icon: BarChart3 },
+  { href: "/settings", label: "설정", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -25,7 +25,7 @@ export function Sidebar() {
     <aside className="w-60 border-r border-border bg-card flex flex-col">
       <div className="p-4 border-b border-border">
         <h1 className="text-lg font-bold text-primary">MCP PM</h1>
-        <p className="text-xs text-muted-foreground">Project Manager</p>
+        <p className="text-xs text-muted-foreground">프로젝트 매니저</p>
       </div>
       <nav aria-label="Main navigation" className="flex-1 p-2">
         {navItems.map((item) => {

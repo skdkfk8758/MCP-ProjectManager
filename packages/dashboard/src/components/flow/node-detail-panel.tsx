@@ -22,7 +22,7 @@ export function NodeDetailPanel({ node, onClose }: NodeDetailPanelProps) {
         <span className={`text-xs font-medium uppercase ${typeColors[node.type || ""] || "text-gray-400"}`}>
           {node.type}
         </span>
-        <button aria-label="Close detail panel" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+        <button aria-label="상세 패널 닫기" onClick={onClose} className="text-muted-foreground hover:text-foreground">
           <X className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>

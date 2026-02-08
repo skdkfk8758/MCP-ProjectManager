@@ -90,7 +90,7 @@ export function TimelineView({ paramsPromise }: TimelineViewProps) {
         >
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold">Timeline</h1>
+        <h1 className="text-2xl font-bold">타임라인</h1>
         <div className="ml-auto flex gap-2">
           <button
             aria-label="Zoom in"
@@ -114,7 +114,7 @@ export function TimelineView({ paramsPromise }: TimelineViewProps) {
             }}
             className="px-3 py-1 text-xs rounded-md bg-card border border-border text-muted-foreground hover:text-foreground"
           >
-            Reset
+            초기화
           </button>
         </div>
       </div>
@@ -122,13 +122,13 @@ export function TimelineView({ paramsPromise }: TimelineViewProps) {
       <div className="rounded-lg border border-border bg-card overflow-auto">
         {events.length === 0 ? (
           <div className="flex items-center justify-center h-64 text-muted-foreground">
-            No events to display
+            표시할 이벤트가 없습니다
           </div>
         ) : (
           <svg
             ref={svgRef}
             role="img"
-            aria-label="Event timeline chart"
+            aria-label="이벤트 타임라인 차트"
             width={width * zoom}
             height={height}
             className="select-none"

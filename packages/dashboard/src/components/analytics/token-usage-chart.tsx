@@ -18,7 +18,7 @@ export function TokenUsageChart({ data }: TokenUsageChartProps) {
   if (!data || data.dates.length === 0) {
     return (
       <div className="flex items-center justify-center h-[250px] text-muted-foreground text-sm">
-        No token data available
+        토큰 데이터가 없습니다
       </div>
     );
   }
@@ -47,7 +47,7 @@ export function TokenUsageChart({ data }: TokenUsageChartProps) {
             borderRadius: "8px",
           }}
           labelStyle={{ color: "#fafafa" }}
-          formatter={(value: number) => [value.toLocaleString(), "Tokens"]}
+          formatter={(value: number) => [value.toLocaleString(), "토큰"]}
         />
         <defs>
           <linearGradient id="tokenGradient" x1="0" y1="0" x2="0" y2="1">

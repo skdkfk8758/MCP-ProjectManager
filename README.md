@@ -99,7 +99,7 @@ mcp-pm start
 
 Once running:
 
-- **Dashboard**: http://localhost:3000
+- **Dashboard**: http://localhost:48294
 - **Backend API**: http://localhost:48293
 - **API Documentation**: http://localhost:48293/docs
 
@@ -271,7 +271,7 @@ python main.py
 ```bash
 cd packages/dashboard
 pnpm dev
-# Dashboard runs on http://localhost:3000
+# Dashboard runs on http://localhost:48294
 ```
 
 #### Start MCP Server (for local testing)

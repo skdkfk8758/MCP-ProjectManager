@@ -26,31 +26,31 @@ export function DashboardView() {
 
   const kpis = [
     {
-      label: "Projects",
+      label: "프로젝트",
       value: overview?.total_projects ?? 0,
       icon: FolderKanban,
       color: "text-blue-400",
     },
     {
-      label: "Active Tasks",
+      label: "활성 작업",
       value: overview?.active_tasks ?? 0,
       icon: Activity,
       color: "text-yellow-400",
     },
     {
-      label: "Completion",
+      label: "완료율",
       value: `${overview?.completion_rate ?? 0}%`,
       icon: CheckCircle2,
       color: "text-green-400",
     },
     {
-      label: "Today Sessions",
+      label: "오늘 세션",
       value: overview?.today_sessions ?? 0,
       icon: Clock,
       color: "text-purple-400",
     },
     {
-      label: "Tokens Used",
+      label: "토큰 사용량",
       value: formatNumber(overview?.total_tokens_used ?? 0),
       icon: Zap,
       color: "text-orange-400",
@@ -59,7 +59,7 @@ export function DashboardView() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6">대시보드</h1>
 
       {/* KPI Bar */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
@@ -81,7 +81,7 @@ export function DashboardView() {
 
       {/* Project Grid */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Projects</h2>
+        <h2 className="text-lg font-semibold">프로젝트</h2>
         <CreateProjectButton />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -93,11 +93,11 @@ export function DashboardView() {
                 <StatusBadge status={project.status} />
               </div>
               <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                {project.description || "No description"}
+                {project.description || "설명 없음"}
               </p>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span>
-                  {project.completed_task_count ?? 0}/{project.task_count ?? 0} tasks
+                  {project.completed_task_count ?? 0}/{project.task_count ?? 0} 작업
                 </span>
                 <span>
                   {(project.task_count ?? 0) > 0
@@ -105,7 +105,7 @@ export function DashboardView() {
                         ((project.completed_task_count ?? 0) / (project.task_count ?? 0)) * 100
                       )
                     : 0}
-                  % done
+                  % 완료
                 </span>
               </div>
               {(project.task_count ?? 0) > 0 && (
@@ -136,13 +136,13 @@ export function DashboardView() {
         ))}
         {(!projects || projects.length === 0) && (
           <div className="col-span-full text-center py-12 text-muted-foreground">
-            No projects yet. Create one to get started.
+            아직 프로젝트가 없습니다. 새 프로젝트를 만들어 시작하세요.
           </div>
         )}
       </div>
 
       {/* Recent Activity */}
-      <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+      <h2 className="text-lg font-semibold mb-4">최근 활동</h2>
       <div className="space-y-2">
         {overview?.recent_activity?.length ? (
           overview.recent_activity.slice(0, 10).map((activity: ActivityEvent, i: number) => (
@@ -163,7 +163,7 @@ export function DashboardView() {
           ))
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            No recent activity
+            최근 활동이 없습니다
           </div>
         )}
       </div>
