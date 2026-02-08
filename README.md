@@ -1,204 +1,130 @@
-**English** | [한국어](README.ko.md)
+[English](README.en.md) | **한국어**
 
 # MCP Project Manager
 
-A comprehensive project management and workflow tracking system integrated with Claude Code. Powered by Model Context Protocol (MCP), it automatically captures Claude Code sessions, tool usage, agent invocations, and project tasks into a centralized dashboard and database.
+Claude Code와 통합된 종합 프로젝트 관리 및 워크플로우 추적 시스템. Model Context Protocol(MCP)을 기반으로 Claude Code 세션, 도구 사용, 에이전트 실행, 프로젝트 작업을 자동으로 캡처하여 중앙 집중식 대시보드와 데이터베이스에 저장합니다.
 
-[![npm version](https://img.shields.io/npm/v/create-mcp-pm.svg)](https://www.npmjs.com/package/create-mcp-pm)
+[![GitHub stars](https://img.shields.io/github/stars/skdkfk8758/MCP-ProjectManager?style=social)](https://github.com/skdkfk8758/MCP-ProjectManager)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-green.svg)](https://nodejs.org/)
-[![Python](https://img.shields.io/badge/python-%3E%3D3.11-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-%3E%3D5.7.0-blue.svg)](https://www.typescriptlang.org/)
+[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-blue.svg)](https://modelcontextprotocol.io/)
 
-## Table of Contents
+> **Fork 정보**: 이 프로젝트는 [croffasia/mcp-project-manager](https://github.com/croffasia/mcp-project-manager)를 포크하여 3-tier 아키텍처로 확장한 버전입니다.
 
-- [Overview](#overview)
-- [Quick Start](#quick-start)
-- [Architecture](#architecture)
-- [Features](#features)
-- [Development](#development)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
+## 목차
 
-## Overview
+- [개요](#개요)
+- [주요 기능](#주요-기능)
+- [아키텍처](#아키텍처)
+- [빠른 시작](#빠른-시작)
+- [설치](#설치)
+- [MCP 클라이언트 설정](#mcp-클라이언트-설정)
+- [개발](#개발)
+- [기술 스택](#기술-스택)
+- [라이선스](#라이선스)
 
-MCP Project Manager is a 3-tier system that transforms your Claude Code workflows into actionable intelligence. It automatically tracks:
+## 개요
 
-- Session activity and timeline
-- Tool usage patterns and performance
-- Agent execution and skill invocations
-- Project tasks, milestones, and deliverables
-- File changes and code metrics
-- Team analytics and insights
+MCP Project Manager는 Claude Code 워크플로우를 실행 가능한 인사이트로 변환하는 3-tier 시스템입니다. 다음을 자동으로 추적합니다:
 
-The system provides a visual dashboard, REST API, and integrates seamlessly with Claude Desktop via MCP.
+- 세션 활동 및 타임라인
+- 도구 사용 패턴 및 성능
+- 에이전트 실행 및 스킬 호출
+- 프로젝트 작업, 마일스톤, 산출물
+- 파일 변경 및 코드 메트릭
+- 팀 분석 및 인사이트
 
-### Key Capabilities
+시각적 대시보드, REST API를 제공하며 MCP를 통해 Claude Desktop과 원활하게 통합됩니다.
 
-- **Automatic Event Capture**: 8 Claude Code hook handlers capture sessions, tools, agents, and prompts without any user intervention
-- **Real-time Dashboard**: Live updates via WebSocket with Kanban boards, flow graphs, and analytics charts
-- **Flow Visualization**: Graph-based view of agent executions, tool calls, and decision flows
-- **Smart Analytics**: Token usage, agent distribution, success rates, and timeline insights
-- **Project Management**: Create projects, track tasks, set milestones, and manage deliverables
-- **One-Command Setup**: `npx create-mcp-pm` handles cloning, building, configuration, and MCP registration
+### 핵심 기능
 
-## Quick Start
+- **자동 이벤트 캡처**: 8개의 Claude Code 훅 핸들러가 사용자 개입 없이 세션, 도구, 에이전트, 프롬프트를 자동 캡처
+- **실시간 대시보드**: WebSocket을 통한 라이브 업데이트, 칸반 보드, 플로우 그래프, 분석 차트
+- **플로우 시각화**: 에이전트 실행, 도구 호출, 의사결정 플로우의 그래프 기반 뷰
+- **스마트 분석**: 토큰 사용량, 에이전트 분포, 성공률, 타임라인 인사이트
+- **프로젝트 관리**: 프로젝트 생성, 작업 추적, 마일스톤 설정, 산출물 관리
+- **원커맨드 설치**: `npx create-mcp-pm`이 클론, 빌드, 설정, MCP 등록을 자동 처리
 
-### Installation
+## 주요 기능
 
-The fastest way to get started is:
+### 33개의 MCP 도구
 
-```bash
-# Option 1: Direct install from GitHub (no npm account needed)
-curl -fsSL https://raw.githubusercontent.com/skdkfk8758/MCP-ProjectManager/main/scripts/install.sh | bash
+#### 플로우 및 세션 추적 (12개)
+- `flow_session_start` / `flow_session_end` - 세션 생명주기 관리
+- `flow_task_start` / `flow_task_end` - 작업 실행 추적
+- `flow_skill_call` - 스킬 호출 기록
+- `flow_error` - 오류 이벤트 로깅
+- `flow_agent_spawn` / `flow_agent_complete` - 에이전트 생명주기
+- `flow_tool_call` - 도구 실행 기록
+- `flow_file_change` - 파일 변경 추적
+- `flow_commit` - Git 커밋 기록
+- `flow_prompt` - 사용자 프롬프트 로깅
 
-# Option 2: npx (available after npm publish)
-npx create-mcp-pm
-```
+#### 프로젝트 관리 CRUD (15개)
+- **프로젝트**: `pm_project_create`, `pm_project_update`, `pm_project_delete`, `pm_project_list`, `pm_project_get`
+- **작업**: `pm_task_create`, `pm_task_update`, `pm_task_delete`, `pm_task_list`, `pm_task_get`
+- **마일스톤**: `pm_milestone_create`, `pm_milestone_update`, `pm_milestone_list`
+- **작업 관리**: `pm_task_move`, `pm_task_assign_priority`
 
-This single command:
-1. Checks for required dependencies (Node.js 20+, Python 3.11+, git)
-2. Clones the MCP ProjectManager repository
-3. Installs all dependencies via pnpm
-4. Builds all packages (MCP Server, CLI, Dashboard, Backend)
-5. Sets up the Python backend with virtual environment
-6. Registers the MCP server with Claude Desktop
-7. Installs Claude Code hook handlers
+#### 쿼리 및 분석 (6개)
+- `pm_dashboard_summary` - KPI 요약 및 프로젝트 통계
+- `pm_timeline` - 이벤트 타임라인 조회
+- `pm_flow_graph` - 플로우 그래프 데이터
+- `pm_analyze_bottleneck` - 병목 현상 분석
+- `pm_suggest_next_task` - 다음 작업 제안
+- `pm_report_generate` - 프로젝트 리포트 생성
 
-### Manual Setup (for Development)
+#### 자체 업데이트 (1개)
+- `pm_self_update` - 설치된 MCP 서버를 최신 버전으로 자동 업데이트
 
-If you're developing locally:
+### 8개의 Claude Code 훅 핸들러
 
-```bash
-# Clone the repository
-git clone https://github.com/skdkfk8758/MCP-ProjectManager.git
-cd MCP_ProjectManager
+Claude Code 훅을 통한 자동 이벤트 캡처:
 
-# Install dependencies
-pnpm install
+| 훅 | 이벤트 | 캡처 내용 |
+|------|-------|----------|
+| `session-start` | SessionStart | 새 세션 초기화 |
+| `session-end` | SessionEnd | 세션 완료 및 요약 |
+| `pre-tool-use` | PreToolUse | 도구 실행 전 |
+| `post-tool-use` | PostToolUse | 도구 완료, 파일 변경 |
+| `subagent-start` | SubagentStart | 에이전트 생성 |
+| `subagent-stop` | SubagentStop | 에이전트 완료 |
+| `user-prompt-submit` | UserPromptSubmit | 사용자 프롬프트 및 쿼리 |
+| `stop` | Stop | 우아한 종료 |
 
-# Build all packages
-pnpm build
+### 대시보드 기능
 
-# Set up Python backend
-cd packages/backend
-python3 -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-pip install -e .
-cd ../..
+#### 핵심 뷰
+- **개요 페이지** (`/`): KPI 카드, 프로젝트 통계, 트렌드 차트 (recharts)
+- **프로젝트 페이지** (`/projects`): 프로젝트 목록 및 진행 상황
+- **프로젝트 상세** (`/projects/[id]`):
+  - 7단계 칸반 보드 (할 일/설계/구현/리뷰/테스트/완료/보관)
+  - 드래그 앤 드롭 작업 관리 (@dnd-kit)
+  - 작업 카드 액션: 편집, 삭제, 실행 시작/중지
+  - 작업 실행 추적 (WebSocket 실시간 업데이트)
+- **타임라인** (`/projects/[id]/timeline`): 이벤트 시간순 조회
+- **플로우 그래프** (`/projects/[id]/flow`): 에이전트 실행 트리 시각화 (@xyflow/react v12)
+- **활동 페이지** (`/activities`): 이벤트 목록 및 필터링
+- **분석 페이지** (`/analytics`): 작업 완료율, 토큰 사용량, 에이전트 분포, 세션 활동
+- **설정 페이지** (`/settings`): 서비스 상태, 데이터베이스 정보
 
-# Register with Claude Desktop and install hooks
-mcp-pm setup
+#### 실시간 업데이트
+- WebSocket 기반 라이브 업데이트 (폴링 없음)
+- 칸반 보드의 낙관적 업데이트
+- 실시간 세션 추적
 
-# Start services
-mcp-pm start
-```
+### 세션 및 작업 실행
 
-### Accessing the Dashboard
+- 세션 생성 및 관리
+- 작업 실행 시작/중지
+- 작업 단계 추적 (설계/구현/리뷰/테스트)
+- 실행 상태 실시간 모니터링
 
-Once running:
+## 아키텍처
 
-- **Dashboard**: http://localhost:48294
-- **Backend API**: http://localhost:48293
-- **API Documentation**: http://localhost:48293/docs
-
-### Demo Data
-
-Seed the database with demo data to instantly see all dashboard features in action:
-
-```bash
-# Seed demo data (3 projects, 26 tasks, analytics, agent stats)
-bash scripts/seed-demo.sh
-
-# Reset all data
-bash scripts/seed-demo.sh reset
-
-# Or via API directly
-curl -X POST http://localhost:48293/api/seed/demo
-curl -X POST http://localhost:48293/api/seed/reset
-```
-
-Demo data includes:
-- **3 Projects**: MCP Project Manager, Ad Simulator, E-Commerce Platform
-- **26 Tasks**: Distributed across 4 statuses (todo, in_progress, done, archived) and 4 priorities
-- **5 Milestones**: Various states per project
-- **30 days of analytics**: Daily stats, token usage trends, session counts
-- **7 Agent configurations**: executor, architect, explorer, researcher, designer with performance metrics
-
-## Usage Guide
-
-### Dashboard Pages
-
-| Page | URL | Description |
-|------|-----|-------------|
-| **Dashboard** | `/` | KPI overview, project cards, recent activity feed |
-| **Projects** | `/projects` | Project list with task counts and progress |
-| **Project Detail** | `/projects/:id` | Kanban board with drag-and-drop task management |
-| **Timeline** | `/projects/:id/timeline` | SVG-based event timeline with zoom/pan |
-| **Flow Graph** | `/projects/:id/flow` | Interactive agent/tool execution graph |
-| **Analytics** | `/analytics` | Charts: task completion, token usage, agent distribution, session activity |
-| **Settings** | `/settings` | Service status, database info, data retention policies |
-
-### API Endpoints
-
-#### Projects
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/projects` | List all projects |
-| `POST` | `/api/projects` | Create a project |
-| `GET` | `/api/projects/:id` | Get project detail |
-| `PUT` | `/api/projects/:id` | Update project |
-| `DELETE` | `/api/projects/:id` | Delete project |
-
-#### Tasks
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/tasks?project_id=N` | List tasks by project |
-| `POST` | `/api/tasks` | Create a task |
-| `PUT` | `/api/tasks/:id` | Update task (status, priority, etc.) |
-| `DELETE` | `/api/tasks/:id` | Delete task |
-
-#### Milestones & Labels
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/milestones?project_id=N` | List milestones |
-| `POST` | `/api/milestones` | Create milestone |
-| `GET` | `/api/labels` | List labels |
-| `POST` | `/api/labels` | Create label |
-
-#### Sessions & Events
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/sessions` | Create session (UUID required) |
-| `GET` | `/api/sessions/:id` | Get session with events |
-| `POST` | `/api/events` | Log an event |
-
-#### Analytics
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/dashboard/overview` | KPI summary (projects, tasks, completion rate) |
-| `GET` | `/api/dashboard/trends?days=30` | Time series: tasks completed, tokens, sessions |
-| `GET` | `/api/dashboard/agent-stats?days=30` | Agent performance metrics |
-
-#### Seed (Demo Data)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/seed/demo` | Insert demo data |
-| `POST` | `/api/seed/reset` | Delete all data |
-
-### Service Ports
-
-| Service | Port | URL |
-|---------|------|-----|
-| Backend API | 48293 | http://localhost:48293 |
-| Dashboard | 48294 | http://localhost:48294 |
-| WebSocket | 48293 | ws://localhost:48293/ws |
-| API Docs (Swagger) | 48293 | http://localhost:48293/docs |
-
-## Architecture
-
-### 3-Tier Design
+### 3-Tier 설계
 
 ```
 ┌─────────────────────────────────────────┐
@@ -219,7 +145,7 @@ Demo data includes:
                │ REST API / WebSocket
                ▼
 ┌─────────────────────────────────────────┐
-│   FastAPI Backend (Python 3.11+)        │
+│   FastAPI Backend (Python 3.14)         │
 │   SQLAlchemy ORM + SQLite (WAL)         │
 │   • 15 database tables                  │
 │   • Real-time WebSocket updates         │
@@ -237,398 +163,239 @@ Demo data includes:
 └─────────────────────────────────────────┘
 ```
 
-### Packages Overview
+### 패키지 구조
 
-| Package | Purpose | Tech Stack | Location |
-|---------|---------|-----------|----------|
-| **mcp-server** | MCP protocol server with 33 tools and 8 hook handlers | TypeScript, @modelcontextprotocol/sdk, tsup | `packages/mcp-server` |
-| **backend** | REST API, database, real-time WebSocket updates | Python 3.11, FastAPI, SQLAlchemy, aiosqlite | `packages/backend` |
-| **dashboard** | Web UI for projects, tasks, sessions, analytics | Next.js 15, React 19, @xyflow/react, recharts, @dnd-kit | `packages/dashboard` |
-| **cli** | Command-line tool for setup, start, stop, status, teardown | TypeScript, Commander | `packages/cli` |
-| **create-mcp-pm** | One-command bootstrap and setup script | TypeScript | `packages/create-mcp-pm` |
+```
+packages/
+├── mcp-server/    # TypeScript MCP Server (tsup build)
+│   └── src/tools/ # 33 MCP tools
+│       ├── flow-events.ts, flow-session.ts, flow-agent.ts, flow-tracking.ts
+│       ├── pm-project.ts, pm-task.ts, pm-milestone.ts, pm-actions.ts
+│       ├── pm-query.ts, pm-analysis.ts, pm-session.ts, pm-update.ts
+│       └── index.ts
+├── backend/       # FastAPI (Python 3.14) REST API + WebSocket
+│   └── app/routes/ # projects, tasks, sessions, milestones, events, analytics, ws, seed, ai, labels
+├── dashboard/     # Next.js 15 (App Router) Web Dashboard
+│   └── src/app/   # pages: /, activities, analytics, projects, projects/[id] (kanban/timeline/flow), settings
+├── cli/           # CLI tools
+└── create-mcp-pm/ # Project scaffolding
+```
 
-## Features
+**데이터베이스**: SQLite (WAL mode) at `~/.mcp-pm/mcp_pm.db`, 15 tables
+**포트**: Backend 48293, Dashboard 48294
 
-### MCP Server (33 Tools)
+## 빠른 시작
 
-#### Flow & Session Tracking (6 tools)
-- `flow_trigger_agent` - Record agent spawn events
-- `flow_update_agent` - Update agent status
-- `flow_session_start` - Initialize session
-- `flow_session_end` - Close session with summary
-- `flow_get_session` - Retrieve session data
-- `flow_list_sessions` - Query all sessions
+### 설치
 
-#### Project Management CRUD (15 tools)
-- **Projects**: `pm_create_project`, `pm_update_project`, `pm_delete_project`, `pm_list_projects`
-- **Tasks**: `pm_create_task`, `pm_update_task`, `pm_delete_task`, `pm_list_tasks`
-- **Milestones**: `pm_create_milestone`, `pm_update_milestone`, `pm_delete_milestone`, `pm_list_milestones`
-- **Labels**: `pm_create_label`, `pm_list_labels`
-- **Bulk Actions**: `pm_batch_update_tasks`
-
-#### Query & Analysis (6 tools)
-- `pm_search_tasks` - Full-text task search
-- `pm_get_task_stats` - Task statistics and burndown
-- `pm_analyze_session` - Session metrics and insights
-- `pm_get_timeline` - Historical view of events
-- `pm_export_project` - Export data in JSON/CSV
-
-#### Flow Events (12 tools)
-- Tool call events: `flow_emit_tool_call`, `flow_update_tool_call`
-- Agent events: `flow_emit_agent_event`
-- Custom event tracking with metadata
-
-### Claude Code Hook Handlers (8)
-
-Automatic event capture via Claude Code hooks:
-
-| Hook | Event | Captures |
-|------|-------|----------|
-| `session-start` | SessionStart | New session initialization |
-| `session-end` | SessionEnd | Session completion and summary |
-| `pre-tool-use` | PreToolUse | Tool about to execute |
-| `post-tool-use` | PostToolUse | Tool completion, file changes |
-| `subagent-start` | SubagentStart | Agent spawn |
-| `subagent-stop` | SubagentStop | Agent completion |
-| `user-prompt-submit` | UserPromptSubmit | User prompts and queries |
-| `stop` | Stop | Graceful shutdown |
-
-### Dashboard Features
-
-#### Core Views
-- **Kanban Board**: Drag-and-drop task management with custom columns
-- **Flow Graph**: Visual representation of agent execution trees (@xyflow/react)
-- **Timeline**: Historical view of all events and activities
-- **Analytics Dashboard**: Charts, agent distribution, token usage, success rates
-
-#### Real-time Updates
-- WebSocket-powered live updates (no polling)
-- Optimistic updates on the Kanban board
-- Live session tracking
-
-### Database (SQLite WAL Mode)
-
-15 tables with comprehensive data model:
-- Sessions, Events, Tool Calls, File Changes
-- Projects, Tasks, Milestones, Labels
-- Agent Executions, Skills, Flow Nodes
-- Analytics snapshots
-
-## Development
-
-### Requirements
-
-- Node.js 20.0.0 or higher
-- Python 3.11 or higher
-- pnpm 9.0.0 or higher (package manager)
-- git
-
-### Build Commands
+가장 빠른 시작 방법:
 
 ```bash
-# Build all packages in dependency order
+# 옵션 1: GitHub에서 직접 설치 (npm 계정 불필요)
+curl -fsSL https://raw.githubusercontent.com/skdkfk8758/MCP-ProjectManager/main/scripts/install.sh | bash
+
+# 옵션 2: npx (npm publish 후 사용 가능)
+npx create-mcp-pm
+```
+
+이 단일 명령이 다음을 수행합니다:
+1. 필수 의존성 확인 (Node.js 20+, Python 3.14+, git)
+2. MCP ProjectManager 저장소 클론
+3. pnpm을 통한 모든 의존성 설치
+4. 모든 패키지 빌드 (MCP Server, CLI, Dashboard, Backend)
+5. Python 백엔드 가상 환경 설정
+6. Claude Desktop에 MCP 서버 등록
+7. Claude Code 훅 핸들러 설치
+
+### 수동 설정 (개발용)
+
+로컬 개발 시:
+
+```bash
+# 저장소 클론
+git clone https://github.com/skdkfk8758/MCP-ProjectManager.git
+cd MCP_ProjectManager
+
+# 의존성 설치
+pnpm install
+
+# 모든 패키지 빌드
 pnpm build
 
-# Build individual packages
+# Python 백엔드 설정
+cd packages/backend
+python3 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -e .
+cd ../..
+
+# Claude Desktop 등록 및 훅 설치
+mcp-pm setup
+
+# 서비스 시작
+mcp-pm start
+```
+
+### 대시보드 접속
+
+실행 후:
+
+- **대시보드**: http://localhost:48294
+- **백엔드 API**: http://localhost:48293
+- **API 문서**: http://localhost:48293/docs
+
+### 데모 데이터
+
+데모 데이터를 시드하여 모든 대시보드 기능을 즉시 확인:
+
+```bash
+# 데모 데이터 시드 (3 프로젝트, 26 작업, 분석 데이터, 에이전트 통계)
+bash scripts/seed-demo.sh
+
+# 모든 데이터 초기화
+bash scripts/seed-demo.sh reset
+
+# 또는 API 직접 호출
+curl -X POST http://localhost:48293/api/seed/demo
+curl -X POST http://localhost:48293/api/seed/reset
+```
+
+## MCP 클라이언트 설정
+
+### Claude Desktop
+
+`~/.claude/settings.local.json`에 다음 추가:
+
+```json
+{
+  "mcpServers": {
+    "mcp-project-manager": {
+      "command": "node",
+      "args": ["/Users/carpdm/Documents/mcp_servers/MCP_ProjectManager/packages/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+### Claude Code
+
+훅 핸들러는 `mcp-pm setup` 실행 시 자동 등록됩니다.
+
+### Cursor / VS Code
+
+MCP 확장 프로그램 설치 후 위와 동일한 설정 사용.
+
+## 개발
+
+### 요구사항
+
+- Node.js 20.0.0 이상
+- Python 3.14 이상
+- pnpm 9.0.0 이상
+- git
+
+### 빌드 명령어
+
+```bash
+# 모든 패키지 빌드
+pnpm turbo build
+
+# 개별 패키지 빌드
 pnpm build -F @mcp-pm/server
 pnpm build -F @mcp-pm/backend
 pnpm build -F @mcp-pm/dashboard
 pnpm build -F @mcp-pm/cli
 
-# Watch mode for development
+# 개발 모드 (watch)
 pnpm dev
 
-# Run linting
+# 린팅
 pnpm lint
 
-# Run tests (if configured)
-pnpm test
-
-# Clean all build artifacts
+# 빌드 아티팩트 정리
 pnpm clean
 ```
 
-### Development Workflow
+### 개발 워크플로우
 
-#### Start Backend
+#### 백엔드 시작
 
 ```bash
 cd packages/backend
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 python main.py
-# Backend runs on http://localhost:48293
+# http://localhost:48293에서 실행
 ```
 
-#### Start Dashboard
+#### 대시보드 시작
 
 ```bash
 cd packages/dashboard
 pnpm dev
-# Dashboard runs on http://localhost:48294
+# http://localhost:48294에서 실행
 ```
 
-#### Start MCP Server (for local testing)
+#### MCP 서버 (로컬 테스트용)
 
 ```bash
 cd packages/mcp-server
 pnpm dev
 ```
 
-### Key Development Notes
+### 주요 개발 노트
 
-- **Async Python**: Backend uses SQLAlchemy async ORM. Always await database calls.
-- **Greenlet Requirement**: Required for aiosqlite + SQLAlchemy async compatibility.
-- **Next.js 15 Routes**: Dynamic route params are Promises. Use `use()` to unwrap them.
-- **Hook Handlers**: Located in `packages/mcp-server/src/hooks/`. Fire-and-forget pattern to avoid blocking Claude Code.
-- **TypeScript Strict**: Use TypeScript strict mode. Check with `pnpm lint`.
+- **비동기 Python**: 백엔드는 SQLAlchemy 비동기 ORM 사용. 데이터베이스 호출 시 항상 await
+- **Greenlet 요구사항**: aiosqlite + SQLAlchemy 비동기 호환성을 위해 필수
+- **Next.js 15 라우트**: 동적 라우트 params는 Promise. `use()`로 언래핑 필요
+- **훅 핸들러**: `packages/mcp-server/src/hooks/`에 위치. Claude Code 차단 방지를 위한 fire-and-forget 패턴
+- **TypeScript Strict**: TypeScript strict 모드 사용. `pnpm lint`로 확인
 
-### Environment Variables
+## 기술 스택
 
-#### Backend (.env in packages/backend)
-```bash
-FASTAPI_HOST=0.0.0.0
-FASTAPI_PORT=48293
-FASTAPI_DEBUG=true
-DATABASE_URL=sqlite://~/.mcp-pm/mcp_pm.db
-```
+| 레이어 | 기술 |
+|-------|------|
+| MCP Server | TypeScript, @modelcontextprotocol/sdk, tsup |
+| Backend | Python 3.14, FastAPI, SQLAlchemy (async), aiosqlite, greenlet |
+| Dashboard | Next.js 15 (App Router), React 19, TanStack Query, @dnd-kit, @xyflow/react, recharts, Tailwind CSS, date-fns |
+| Build | pnpm workspaces, Turborepo |
+| DB | SQLite (WAL mode) |
 
-#### Dashboard (.env.local in packages/dashboard)
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:48293
-```
+## CLI 명령어
 
-#### Claude Code Hooks
-```bash
-FASTAPI_BASE_URL=http://localhost:48293
-CLAUDE_SESSION_ID=<optional-fallback>
-```
-
-## Project Structure
-
-```
-MCP_ProjectManager/
-├── packages/
-│   ├── mcp-server/              # MCP Server with 33 tools + 8 hooks
-│   │   ├── src/
-│   │   │   ├── tools/           # Tool implementations
-│   │   │   │   ├── flow-events.ts
-│   │   │   │   ├── flow-session.ts
-│   │   │   │   ├── flow-agent.ts
-│   │   │   │   ├── flow-tracking.ts
-│   │   │   │   ├── pm-project.ts
-│   │   │   │   ├── pm-task.ts
-│   │   │   │   ├── pm-milestone.ts
-│   │   │   │   ├── pm-actions.ts
-│   │   │   │   ├── pm-query.ts
-│   │   │   │   └── pm-analysis.ts
-│   │   │   ├── hooks/           # Claude Code hook handlers
-│   │   │   │   ├── session-start.ts
-│   │   │   │   ├── session-end.ts
-│   │   │   │   ├── pre-tool-use.ts
-│   │   │   │   ├── post-tool-use.ts
-│   │   │   │   ├── subagent-start.ts
-│   │   │   │   ├── subagent-stop.ts
-│   │   │   │   ├── user-prompt-submit.ts
-│   │   │   │   ├── stop.ts
-│   │   │   │   └── hook-utils.ts
-│   │   │   ├── server.ts        # Main MCP server entry point
-│   │   │   └── index.ts
-│   │   └── package.json
-│   │
-│   ├── backend/                 # FastAPI Python backend
-│   │   ├── app/
-│   │   │   ├── models/          # SQLAlchemy ORM models
-│   │   │   ├── api/             # Route handlers
-│   │   │   ├── config.py        # Settings
-│   │   │   ├── main.py          # FastAPI app
-│   │   │   └── cli.py           # CLI entry point
-│   │   ├── main.py              # Entry point (uvicorn)
-│   │   ├── pyproject.toml       # Python dependencies
-│   │   └── .venv/               # Virtual environment
-│   │
-│   ├── dashboard/               # Next.js 15 React dashboard
-│   │   ├── src/
-│   │   │   ├── app/             # App Router pages
-│   │   │   ├── components/      # React components
-│   │   │   ├── hooks/           # React custom hooks
-│   │   │   ├── lib/             # Utilities, API client
-│   │   │   └── styles/          # Tailwind CSS
-│   │   ├── next.config.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── cli/                     # TypeScript CLI tool
-│   │   ├── src/
-│   │   │   ├── commands/
-│   │   │   │   ├── init.ts      # Setup command
-│   │   │   │   ├── service.ts   # Start/stop/status
-│   │   │   │   └── teardown.ts  # Remove MCP + hooks
-│   │   │   └── index.ts         # CLI entry point
-│   │   └── package.json
-│   │
-│   └── create-mcp-pm/           # Bootstrap script for npx
-│       ├── src/
-│       │   └── index.ts         # One-command setup
-│       └── package.json
-│
-├── turbo.json                   # Turborepo config
-├── pnpm-workspace.yaml          # pnpm workspaces
-├── package.json                 # Root package
-└── LICENSE                      # MIT License
-```
-
-## Database Schema
-
-The backend uses SQLite with WAL mode for better concurrency. 15 core tables:
-
-- **sessions** - Claude Code session tracking
-- **events** - Generic event log
-- **tool_calls** - Tool execution records
-- **file_changes** - File modification tracking
-- **agent_executions** - Agent spawn and completion
-- **projects** - Project definitions
-- **tasks** - Individual tasks within projects
-- **milestones** - Project milestones
-- **labels** - Task labels/tags
-- **skills** - Agent skills and capabilities
-- **flow_nodes** - Flow graph nodes
-- **flow_edges** - Flow graph edges
-- **analytics_snapshots** - Historical analytics data
-- **session_summaries** - Session metadata and summaries
-- **token_metrics** - Token usage tracking
-
-## CLI Commands
-
-The `mcp-pm` CLI provides project management:
+`mcp-pm` CLI를 통한 프로젝트 관리:
 
 ```bash
-# Full setup: environment check, build, start services, register MCP
+# 전체 설정: 환경 확인, 빌드, 서비스 시작, MCP 등록
 mcp-pm setup
 
-# Start services (backend + dashboard)
-mcp-pm start [service]     # service: backend, dashboard, or all (default)
+# 서비스 시작 (백엔드 + 대시보드)
+mcp-pm start [service]     # service: backend, dashboard, 또는 all (기본값)
 
-# Stop all running services
+# 모든 실행 중인 서비스 중지
 mcp-pm stop
 
-# Check service status, builds, hooks, database
+# 서비스 상태, 빌드, 훅, 데이터베이스 확인
 mcp-pm status
 
-# Remove MCP server and hooks from Claude Desktop for this project
+# 이 프로젝트의 MCP 서버 및 훅을 Claude Desktop에서 제거
 mcp-pm teardown
 ```
 
-## Configuration
+## 문서
 
-### Claude Desktop Integration
+- [도구 레퍼런스](docs/tools.md) - 33개 MCP 도구 상세 설명
+- [프롬프트 가이드](docs/prompts.md) - Claude와 함께 사용하기 위한 프롬프트 예제
+- [아키텍처 문서](docs/README.md) - 시스템 설계 및 데이터 플로우
 
-The MCP server is registered in `~/.claude/settings.local.json`:
+## 라이선스
 
-```json
-{
-  "mcpServers": {
-    "mcp-project-manager": {
-      "command": "npx",
-      "args": ["@mcp-pm/server"]
-    }
-  },
-  "hooks": {
-    "SessionStart": [
-      { "command": "npx @mcp-pm/server hooks/session-start.ts" }
-    ],
-    "PostToolUse": [
-      { "command": "npx @mcp-pm/server hooks/post-tool-use.ts" }
-    ]
-    // ... other hooks
-  }
-}
-```
-
-Hook handlers are automatically installed during setup.
-
-## Contributing
-
-Contributions are welcome! Please follow these guidelines:
-
-1. **Fork the repository** and create a feature branch
-2. **Follow TypeScript conventions** - use strict mode, write types
-3. **Test your changes** - run `pnpm build` and `pnpm lint`
-4. **Keep commits atomic** - one feature per commit
-5. **Write clear commit messages** following conventional commits
-6. **Update documentation** if you add features
-
-### Development Tips
-
-- Use `pnpm dev` in the root for parallel development
-- Check `packages/mcp-server/src/hooks/README.md` for hook architecture
-- Review backend models in `packages/backend/app/models/` for database schema
-- Dashboard components use Tailwind CSS and shadcn-style utilities
-
-## Troubleshooting
-
-### Services won't start
-
-```bash
-# Check status and see detailed errors
-mcp-pm status
-
-# Verify environment
-node --version  # Should be 20+
-python3 --version  # Should be 3.11+
-pnpm --version  # Should be 9+
-```
-
-### Backend won't connect
-
-```bash
-# Check if port 48293 is in use
-lsof -i :48293
-
-# Verify Python virtual environment
-cd packages/backend
-source .venv/bin/activate
-pip list | grep fastapi
-```
-
-### Dashboard blank or won't load
-
-```bash
-# Check if port 48294 is in use
-lsof -i :48294
-
-# Rebuild dashboard
-cd packages/dashboard
-pnpm build
-pnpm start
-```
-
-### Hook handlers not firing
-
-```bash
-# Verify hooks installed
-grep -r "hooks" ~/.claude/settings.local.json
-
-# Check hook file permissions
-ls -la packages/mcp-server/src/hooks/
-```
-
-## Performance Notes
-
-- **Database**: SQLite WAL mode for concurrent read/write
-- **Backend**: Async/await with aiosqlite for non-blocking I/O
-- **Dashboard**: Optimistic updates with React Query caching
-- **Hooks**: Fire-and-forget with 3-second timeout to avoid blocking Claude
-- **WebSocket**: Real-time updates with automatic reconnection
-
-## License
-
-MIT License - See [LICENSE](LICENSE) file for details
+MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일 참조
 
 Copyright (c) 2025 MCP Project Manager Contributors
 
-## Acknowledgments
+## 감사의 글
 
-Built with:
+다음 기술로 구축되었습니다:
 - [Model Context Protocol](https://modelcontextprotocol.io/) by Anthropic
 - [TypeScript](https://www.typescriptlang.org/)
 - [FastAPI](https://fastapi.tiangolo.com/)
@@ -637,12 +404,12 @@ Built with:
 - [TailwindCSS](https://tailwindcss.com/)
 - [SQLAlchemy](https://www.sqlalchemy.org/)
 
-## Support
+## 지원
 
-For issues and questions:
+이슈 및 질문:
 - GitHub Issues: https://github.com/skdkfk8758/MCP-ProjectManager/issues
 - Discussions: https://github.com/skdkfk8758/MCP-ProjectManager/discussions
 
 ---
 
-**Ready to get started?** Run `npx create-mcp-pm` and start tracking your Claude Code workflows!
+**시작할 준비가 되셨나요?** `npx create-mcp-pm`을 실행하여 Claude Code 워크플로우 추적을 시작하세요!
