@@ -142,7 +142,15 @@ export function DashboardView() {
       </div>
 
       {/* Recent Activity */}
-      <h2 className="text-lg font-semibold mb-4">최근 활동</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">최근 활동</h2>
+        <Link
+          href="/activities"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          전체 보기 →
+        </Link>
+      </div>
       <div className="space-y-2">
         {overview?.recent_activity?.length ? (
           overview.recent_activity.slice(0, 10).map((activity: ActivityEvent, i: number) => (

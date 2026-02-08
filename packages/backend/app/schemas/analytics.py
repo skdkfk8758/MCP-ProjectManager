@@ -24,3 +24,19 @@ class AgentStatsResponse(BaseModel):
     total_calls: int
     avg_duration_ms: float
     success_rate: float
+
+
+class ActivityItem(BaseModel):
+    id: int
+    type: str
+    timestamp: datetime
+    payload: dict | None = None
+    session_id: str | None = None
+    session_name: str | None = None
+
+
+class ActivityListResponse(BaseModel):
+    items: list[ActivityItem]
+    total: int
+    limit: int
+    offset: int

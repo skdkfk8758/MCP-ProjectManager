@@ -38,6 +38,8 @@ export interface TaskItem {
   priority: string;
   sort_order: number;
   due_date: string | null;
+  execution_mode?: string | null;
+  phase: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -56,6 +58,15 @@ export interface ActivityEvent {
   type: string;
   timestamp: string;
   payload?: Record<string, unknown>;
+  session_id?: string;
+  session_name?: string;
+}
+
+export interface ActivityListResponse {
+  items: ActivityEvent[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface AgentStat {
@@ -94,5 +105,14 @@ export const api = {
     overview: () => apiFetch<DashboardOverview>("/api/dashboard/overview"),
     trends: (days?: number) => apiFetch<TrendData>(`/api/dashboard/trends?days=${days || 30}`),
     agentStats: (days?: number) => apiFetch<AgentStat[]>(`/api/dashboard/agent-stats?days=${days || 30}`),
+    activities: (params?: { event_type?: string; project_id?: number; limit?: number; offset?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.event_type) searchParams.set("event_type", params.event_type);
+      if (params?.project_id) searchParams.set("project_id", String(params.project_id));
+      if (params?.limit) searchParams.set("limit", String(params.limit));
+      if (params?.offset) searchParams.set("offset", String(params.offset));
+      const query = searchParams.toString();
+      return apiFetch<ActivityListResponse>(`/api/dashboard/activities${query ? `?${query}` : ""}`);
+    },
   },
 };

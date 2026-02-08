@@ -5,9 +5,9 @@ from sqlalchemy import select, func as sa_func
 from app.database import get_db
 from app.models.project import Project
 from app.models.task import Task
-from app.models.event import Session, Event, AgentExecution
+from app.models.event import Session, Event
 from app.models.analytics import DailyStats, AgentUsageStats
-from app.schemas.analytics import DashboardOverview, TrendData, AgentStatsResponse
+from app.schemas.analytics import DashboardOverview, TrendData, AgentStatsResponse, ActivityListResponse, ActivityItem
 
 router = APIRouter()
 
@@ -126,3 +126,46 @@ async def agent_stats(
         )
         for v in aggregated.values()
     ]
+
+
+@router.get("/activities", response_model=ActivityListResponse)
+async def list_activities(
+    project_id: int | None = Query(None),
+    event_type: str | None = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_db),
+):
+    # Base query with optional session join for session_name
+    base_query = select(Event, Session.name.label("session_name")).outerjoin(
+        Session, Event.session_id == Session.id
+    )
+
+    # Apply filters
+    if event_type:
+        base_query = base_query.where(Event.event_type == event_type)
+    if project_id:
+        base_query = base_query.where(Session.project_id == project_id)
+
+    # Count total
+    count_query = select(sa_func.count()).select_from(base_query.subquery())
+    total = (await db.execute(count_query)).scalar() or 0
+
+    # Fetch paginated results
+    query = base_query.order_by(Event.timestamp.desc()).offset(offset).limit(limit)
+    result = await db.execute(query)
+    rows = result.all()
+
+    items = [
+        ActivityItem(
+            id=row.Event.id,
+            type=row.Event.event_type,
+            timestamp=row.Event.timestamp,
+            payload=row.Event.payload,
+            session_id=row.Event.session_id,
+            session_name=row.session_name,
+        )
+        for row in rows
+    ]
+
+    return ActivityListResponse(items=items, total=total, limit=limit, offset=offset)
