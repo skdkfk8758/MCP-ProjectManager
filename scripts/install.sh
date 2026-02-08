@@ -91,16 +91,26 @@ log "Step 3/9: Getting MCP ProjectManager..."
 
 mkdir -p "$BASE_DIR"
 
+CODE_UPDATED=false
+
 if [ -f "$INSTALL_DIR/package.json" ]; then
   # Repo exists — pull latest
   log "Repository found. Pulling latest..."
+  OLD_HEAD=$(git -C "$INSTALL_DIR" rev-parse HEAD 2>/dev/null || echo "unknown")
   if git -C "$INSTALL_DIR" pull --ff-only &>/dev/null; then
-    ok "Repository updated"
+    NEW_HEAD=$(git -C "$INSTALL_DIR" rev-parse HEAD 2>/dev/null || echo "unknown")
+    if [ "$OLD_HEAD" != "$NEW_HEAD" ]; then
+      CODE_UPDATED=true
+      ok "Repository updated ($OLD_HEAD -> $NEW_HEAD)"
+    else
+      ok "Repository already up to date"
+    fi
   else
     warn "git pull failed (maybe on a different branch). Using existing version."
   fi
 else
   # Fresh clone
+  CODE_UPDATED=true
   log "Cloning from $REPO_URL..."
   if git clone "$REPO_URL" "$INSTALL_DIR" &>/dev/null; then
     ok "Repository cloned"
@@ -135,7 +145,7 @@ fi
 log "Step 5/9: Building MCP Server..."
 
 MCP_SERVER_DIST="$INSTALL_DIR/packages/mcp-server/dist"
-if [ -d "$MCP_SERVER_DIST" ]; then
+if [ -d "$MCP_SERVER_DIST" ] && [ "$CODE_UPDATED" = false ]; then
   ok "MCP Server already built"
 else
   log "Building MCP Server..."
@@ -149,7 +159,7 @@ fi
 log "Step 6/9: Building CLI..."
 
 CLI_DIST="$INSTALL_DIR/packages/cli/dist"
-if [ -d "$CLI_DIST" ]; then
+if [ -d "$CLI_DIST" ] && [ "$CODE_UPDATED" = false ]; then
   ok "CLI already built"
 else
   log "Building CLI..."
@@ -163,7 +173,7 @@ fi
 log "Step 7/9: Building Dashboard..."
 
 DASHBOARD_NEXT="$INSTALL_DIR/packages/dashboard/.next"
-if [ -d "$DASHBOARD_NEXT" ]; then
+if [ -d "$DASHBOARD_NEXT" ] && [ "$CODE_UPDATED" = false ]; then
   ok "Dashboard already built"
 else
   log "Building Dashboard (this may take a minute)..."
@@ -177,8 +187,13 @@ fi
 log "Step 8/9: Setting up Python backend..."
 
 BACKEND_VENV="$INSTALL_DIR/packages/backend/.venv"
-if [ -d "$BACKEND_VENV" ]; then
+if [ -d "$BACKEND_VENV" ] && [ "$CODE_UPDATED" = false ]; then
   ok "Python venv exists"
+elif [ -d "$BACKEND_VENV" ]; then
+  log "Updating Python dependencies..."
+  BACKEND_DIR="$INSTALL_DIR/packages/backend"
+  "$BACKEND_DIR/.venv/bin/pip" install -e ".[dev]" &>/dev/null 2>&1 || "$BACKEND_DIR/.venv/bin/pip" install -e . &>/dev/null
+  ok "Python dependencies updated"
 else
   log "Creating Python venv..."
   BACKEND_DIR="$INSTALL_DIR/packages/backend"
